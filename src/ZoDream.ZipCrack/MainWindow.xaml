@@ -1,0 +1,78 @@
+﻿<Window x:Class="ZoDream.ZipCrack.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Zip Cracker" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Skins/MainSkin.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Cipher Zip" Style="{StaticResource LableTb}"/>
+            <TextBox x:Name="cipherFileTb" 
+                     PreviewDragOver="cipherFileTb_DragOver"
+                     PreviewDrop="cipherFileTb_Drop"
+                     TextChanged="cipherFileTb_TextChanged" Grid.Column="1" Style="{StaticResource InputTb}"/>
+            <Button x:Name="cipherBtn" Grid.Column="2" Content="Select Zip" Click="cipherBtn_Click"/>
+            <TextBlock Text="File Name" Grid.Column="3" Style="{StaticResource LableTb}"/>
+            <ComboBox x:Name="cipherNameTb" ItemsSource="{Binding CipherItems}" 
+                      Grid.Column="4" Style="{StaticResource FileCb}"/>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Plain Zip" Style="{StaticResource LableTb}"/>
+            <TextBox x:Name="plainFileTb" PreviewDragOver="cipherFileTb_DragOver" 
+                     PreviewDrop="cipherFileTb_Drop" TextChanged="plainFileTb_TextChanged" Grid.Column="1"  Style="{StaticResource InputTb}"/>
+            <Button x:Name="plainBtn" Grid.Column="2" Content="Select Zip" Click="plainBtn_Click"/>
+            <TextBlock Text="File Name" Grid.Column="3" Style="{StaticResource LableTb}"/>
+            <ComboBox x:Name="plainNameTb" ItemsSource="{Binding PlainItems}"
+                      Style="{StaticResource FileCb}"
+                      Grid.Column="4"/>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Internal Keys" Style="{StaticResource LableTb}" ToolTip="Keys obtained through plaintext attacks "/>
+            <TextBox x:Name="key1Tb" TextChanged="key1Tb_TextChanged" Grid.Column="1" Style="{StaticResource InputTb}"/>
+            <TextBox x:Name="key2Tb" TextChanged="key1Tb_TextChanged" Grid.Column="2" Style="{StaticResource InputTb}"/>
+            <TextBox x:Name="key3Tb" TextChanged="key1Tb_TextChanged" Grid.Column="3" Style="{StaticResource InputTb}"/>
+        </Grid>
+
+        <TextBox x:Name="infoTb" Grid.Row="3" Background="#f4f4f4" IsReadOnly="True"/>
+
+        <ProgressBar x:Name="progressBar" Grid.Row="4" Height="10" Visibility="Collapsed"/>
+        <Button x:Name="doBtn" Content="Get Keys" Click="doBtn_Click" Grid.Row="5"/>
+    </Grid>
+</Window>
