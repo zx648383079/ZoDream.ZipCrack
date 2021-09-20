@@ -168,6 +168,7 @@ namespace ZoDream.Shared
 
         public bool Unpack(KeyItem keys, string cipherFile, string distFolder)
         {
+            var res = true;
             using(var fs = File.OpenRead(cipherFile))
             {
                 var items = Zip.GetEntries(fs);
@@ -175,10 +176,13 @@ namespace ZoDream.Shared
                 foreach (var item in items)
                 {
                     Logger?.Progress(++i, items.Count);
-                    Unpack(keys, fs, item, distFolder);
+                    if (!Unpack(keys, fs, item, distFolder))
+                    {
+                        res = false;
+                    }
                 }
             }
-            return false;
+            return res;
         }
 
         public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string cipherFileName, string distFolder)
@@ -212,7 +216,7 @@ namespace ZoDream.Shared
             var distFile = Path.Combine(distFolder, entry.Name);
             using (var fs = File.Create(distFile))
             {
-                var res = Unpack(keys.Clone(), cipherStream, begin, end, fs);
+                var res = Unpack(keys.Clone(), cipherStream, begin, end, fs, entry.CompressionMethod);
                 if (!res)
                 {
                     fs.Close();
@@ -238,6 +242,58 @@ namespace ZoDream.Shared
             }
         }
 
+        public bool Unpack(KeyItem keys, FileStream cipherStream, long begin, long end, FileStream distStream, CompressionMethod compression)
+        {
+            switch (compression)
+            {
+                case CompressionMethod.Stored:
+                    return UnpackStored(keys, cipherStream, begin, end, distStream);
+                case CompressionMethod.Deflated:
+                    return Unpack(keys, cipherStream, begin, end, distStream);
+                default:
+                    Logger?.Error("Unsupported compression method " + compression);
+                    break;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 根据Stored编码保存
+        /// </summary>
+        /// <param name="keys"></param>
+        /// <param name="cipherStream"></param>
+        /// <param name="begin"></param>
+        /// <param name="end"></param>
+        /// <param name="distStream"></param>
+        /// <returns></returns>
+        public bool UnpackStored(KeyItem keys, FileStream cipherStream, long begin, long end, FileStream distStream)
+        {
+            cipherStream.Seek(begin, SeekOrigin.Begin);
+            var offset = begin + CrackData.ENCRYPTION_HEADER_SIZE;
+            distStream.Seek(0, SeekOrigin.Begin);
+            for (var i = begin; i < end; i++)
+            {
+                var b = (char)cipherStream.ReadByte();
+                var p = (byte)(b ^ KeystreamTab.GetByte(keys.Z));
+                keys.Update(p);
+                if (i < offset)
+                {
+                    continue;
+                }
+                distStream.WriteByte(p);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 这是根据deflater编码
+        /// </summary>
+        /// <param name="keys"></param>
+        /// <param name="cipherStream"></param>
+        /// <param name="begin"></param>
+        /// <param name="end"></param>
+        /// <param name="distStream"></param>
+        /// <returns></returns>
         public bool Unpack(KeyItem keys, FileStream cipherStream, long begin, long end, FileStream distStream)
         {
             cipherStream.Seek(begin, SeekOrigin.Begin);
