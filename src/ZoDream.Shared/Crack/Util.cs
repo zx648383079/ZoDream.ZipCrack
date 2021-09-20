@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace ZoDream.Shared.Crack
@@ -32,6 +33,43 @@ namespace ZoDream.Shared.Crack
             T t = a;
             a = b;
             b = t;
+        }
+
+        /// <summary>
+        /// 获取文件的Crc32
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public static string Crc32(string file)
+        {
+            if (string.IsNullOrWhiteSpace(file) || !File.Exists(file))
+            {
+                return string.Empty;
+            }
+            using (var fs = File.OpenRead(file))
+            {
+                return Crc32(fs);
+            }
+        }
+
+        /// <summary>
+        /// 获取文件流的Crc32
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public static string Crc32(Stream stream)
+        {
+            uint res = 0;
+            while (true)
+            {
+                var b = stream.ReadByte();
+                if (b == -1)
+                {
+                    break;
+                }
+                res = Crc32Tab.Crc32(res, (byte)b);
+            }
+            return res.ToString("X");
         }
     }
 }

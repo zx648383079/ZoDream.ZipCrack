@@ -44,15 +44,23 @@ namespace ZoDream.Shared
 
         public KeyItem? FindKey(FileStream cipherStream, string cipherFileName, FileStream plainStream, string plainFileName)
         {
-            if (!Zip.GetFileDataPosition(cipherStream, cipherFileName, out var cipherBegin, out var cipherTend))
+            try
             {
+                if (!Zip.GetFileDataPosition(cipherStream, cipherFileName, out var cipherBegin, out var cipherTend))
+                {
+                    return null;
+                }
+                if (!Zip.GetFileDataPosition(plainStream, plainFileName, out var plainBegin, out var plainEnd))
+                {
+                    return null;
+                }
+                return FindKey(cipherStream, cipherBegin, cipherTend, plainStream, plainBegin, plainEnd);
+            }
+            catch (Exception ex)
+            {
+                Logger?.Error(ex.Message);
                 return null;
             }
-            if (!Zip.GetFileDataPosition(plainStream, plainFileName, out var plainBegin, out var plainEnd))
-            {
-                return null;
-            }
-            return FindKey(cipherStream, cipherBegin, cipherTend, plainStream, plainBegin, plainEnd);
         }
 
         public KeyItem? FindKey(string cipherFile, long cipherBegin, long cipherTend, string plainFile, long plainBegin, long plainEnd)
