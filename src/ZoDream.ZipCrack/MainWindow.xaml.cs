@@ -82,7 +82,7 @@ namespace ZoDream.ZipCrack
 
         private void key1Tb_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var keys = (sender as TextBox).Text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var keys = (sender as TextBox).Text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             if (keys.Length == 3)
             {
                 key1Tb.Text = keys[0];
