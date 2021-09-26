@@ -20,8 +20,7 @@ namespace ZoDream.Shared
         {
             begin = 0;
             end = 0;
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            ZipStrings.CodePage = Encoding.GetEncoding("gb2312").CodePage;
+            RegisterEncoding();
             using (var zipFile = new ZipFile(stream))
             {
                 zipFile.IsStreamOwner = false;
@@ -69,8 +68,7 @@ namespace ZoDream.Shared
         {
             var items = new List<ZipEntry>();
             // ZipStrings.UseUnicode = true;
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            ZipStrings.CodePage = Encoding.GetEncoding("gb2312").CodePage;
+            RegisterEncoding();
             using (var stream = new ZipFile(fs))
             {
                 stream.IsStreamOwner = false;
@@ -84,6 +82,18 @@ namespace ZoDream.Shared
                 }
             }
             return items;
+        }
+
+        private static void RegisterEncoding()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            var lang = System.Threading.Thread.CurrentThread.CurrentCulture.Name;
+            if (lang == "zh-CN" || lang == "zh-TW")
+            {
+                ZipStrings.CodePage = Encoding.GetEncoding("gb2312").CodePage;
+                return;
+            }
+            ZipStrings.UseUnicode = true;
         }
     }
 }
