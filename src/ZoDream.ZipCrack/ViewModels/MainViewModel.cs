@@ -13,6 +13,14 @@ namespace ZoDream.ZipCrack.ViewModels
     public class MainViewModel: BindableBase
     {
 
+        private string[] encodingItems = Zip.GetEncodings();
+        public string[] EncodingItems
+        {
+            get => encodingItems;
+            set => Set(ref encodingItems, value);
+        }
+
+
         private ObservableCollection<FileItem> cipherItems = new ObservableCollection<FileItem>();
 
         public ObservableCollection<FileItem> CipherItems

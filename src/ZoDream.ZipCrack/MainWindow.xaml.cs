@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using ZoDream.Shared;
 using ZoDream.Shared.Crack;
 using ZoDream.Shared.Loggers;
+using ZoDream.ZipCrack.Utils;
 using ZoDream.ZipCrack.ViewModels;
 
 namespace ZoDream.ZipCrack
@@ -31,86 +32,26 @@ namespace ZoDream.ZipCrack
         }
 
         public MainViewModel ViewModel = new MainViewModel();
+        private Cracker? crackerTask;
 
         public bool IsLoading
         {
             set
             {
-                doBtn.IsEnabled = !value;
-                progressBar.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
-
-        public KeyItem Keys
-        {
-            get {  return new KeyItem(key1Tb.Text, key2Tb.Text, key3Tb.Text); }
-            set
-            {
-                key1Tb.Text = value.X.ToString("x8");
-                key2Tb.Text = value.Y.ToString("x8");
-                key3Tb.Text = value.Z.ToString("x8");
-            }
-        }
-
-        private void cipherBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var open = new Microsoft.Win32.OpenFileDialog
-            {
-                Filter = "ZIP|*.zip|All Files|*.*",
-                Title = "Select the encrypted compressed file"
-            };
-            if (open.ShowDialog() != true)
-            {
-                return;
-            }
-            cipherFileTb.Text = open.FileName;
-        }
-
-        private void plainBtn_Click(object sender, RoutedEventArgs e)
-        {
-            var open = new Microsoft.Win32.OpenFileDialog
-            {
-                Filter = "ZIP|*.zip|All Files|*.*",
-                Title = "Select the plain file"
-            };
-            if (open.ShowDialog() != true)
-            {
-                return;
-            }
-            plainFileTb.Text = open.FileName;
-        }
-
-        private void key1Tb_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            var keys = (sender as TextBox).Text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (keys.Length == 3)
-            {
-                key1Tb.Text = keys[0];
-                key2Tb.Text = keys[1];
-                key3Tb.Text = keys[2];
-            }
-            if (!string.IsNullOrWhiteSpace(key1Tb.Text) && 
-                !string.IsNullOrWhiteSpace(key2Tb.Text) && 
-                !string.IsNullOrWhiteSpace(key3Tb.Text))
-            {
-                doBtn.Content = "Select unzip to folder";
-            } else
-            {
-                doBtn.Content = "Get Keys";
+                StopBtn.Visibility = progressBar.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
+                ActionPanel.Visibility = !value ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
         private void doBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(cipherFileTb.Text))
+            if (string.IsNullOrWhiteSpace(cipherFileTb.FileName))
             {
-                MessageBox.Show("Select the encrypted compressed file");
+                MessageBox.Show(LocalizedLangExtension.GetString("selectZipTip"));
                 return;
             }
-            infoTb.Text = string.Empty;
-            if (!string.IsNullOrWhiteSpace(key1Tb.Text) &&
-                !string.IsNullOrWhiteSpace(key2Tb.Text) &&
-                !string.IsNullOrWhiteSpace(key3Tb.Text))
+            infoTb.Clear();
+            if (KeyTb.IsCompleted)
             {
                 Unpack();
                 return;
@@ -118,101 +59,168 @@ namespace ZoDream.ZipCrack
             FindKeys();
         }
 
-        private async void Unpack()
+        private async void Unpack(bool justFile = false)
         {
             var folder = new System.Windows.Forms.FolderBrowserDialog
             {
-                SelectedPath = System.IO.Path.GetDirectoryName(cipherFileTb.Text),
+                SelectedPath = System.IO.Path.GetDirectoryName(cipherFileTb.FileName),
                 ShowNewFolderButton = true,
-                Description = "Select unzip to folder",
+                Description = LocalizedLangExtension.GetString("unzipBtnContent"),
             };
             if (folder.ShowDialog() != System.Windows.Forms.DialogResult.OK)
             {
                 return;
             }
             IsLoading = true;
-            var cracker = GetCracker();
-            var res = await cracker.UnpackAsync(Keys, cipherFileTb.Text.Trim(), folder.SelectedPath);
-            MessageBox.Show(res ? "Unzip Success" : "Unzip Failure");
+            Zip.CodePage = EncodingTb.Text.Trim();
+            crackerTask = GetCracker();
+            bool res;
+            if (justFile)
+            {
+                res = await crackerTask.UnpackAsync(KeyTb.Keys, cipherFileTb.FileName, cipherNameTb.Text.Trim(), folder.SelectedPath);
+            } else
+            {
+                res = await crackerTask.UnpackAsync(KeyTb.Keys, cipherFileTb.FileName, folder.SelectedPath);
+            }
+            MessageBox.Show(LocalizedLangExtension.GetString(res ? "unzipSuccess" : "unzipError"));
             IsLoading = false;
         }
 
         private async void FindKeys()
         {
-            if (string.IsNullOrWhiteSpace(plainFileTb.Text))
+            if (string.IsNullOrWhiteSpace(plainFileTb.FileName))
             {
-                MessageBox.Show("Select the plain file");
+                MessageBox.Show(LocalizedLangExtension.GetString("selectPlainTip"));
                 return;
             }
             IsLoading = true;
-            var cracker = GetCracker();
-            var keys = await cracker.FindKeyAsync(cipherFileTb.Text.Trim(), cipherNameTb.Text.Trim(), 
-                plainFileTb.Text.Trim(), plainNameTb.Text.Trim());
+            Zip.CodePage = EncodingTb.Text.Trim();
+            crackerTask = GetCracker();
+            var keys = await crackerTask.FindKeyAsync(cipherFileTb.FileName, cipherNameTb.Text.Trim(), 
+                plainFileTb.FileName, plainNameTb.Text.Trim());
             if (keys != null)
             {
-                Keys = keys;
+                KeyTb.Keys = keys;
             }
-            MessageBox.Show(keys != null ? "Get Keys Success" : "Get Keys Failure");
+            MessageBox.Show(LocalizedLangExtension.GetString(keys != null ?
+                "getSuccess" : "getError"));
             IsLoading = false;
         }
 
         private Cracker GetCracker()
         {
+            crackerTask?.Stop();
             progressBar.Value = 0;
             var logger = new EventLogger();
             logger.OnLog += (s, e) =>
             {
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    infoTb.Text += s + "\n";
+                    infoTb.AppendLine(s);
                 });
             };
             logger.OnProgress += (s, e) =>
             {
                 App.Current.Dispatcher.Invoke(() =>
                 {
+                    progressBar.Visibility = Visibility.Visible;
                     progressBar.Value = s * 100 / e;
                 });
             };
             return new Cracker(logger);
         }
 
-        private void cipherFileTb_TextChanged(object sender, TextChangedEventArgs e)
+
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ViewModel.Loadcipher((sender as TextBox).Text.Trim());
+            EncodingTb.Text = Zip.DefaultEncoding();
+        }
+
+        private void cipherFileTb_FileChanged(object sender, string fileName)
+        {
+            KeyTb.Text = string.Empty;
+            Zip.CodePage = EncodingTb.Text.Trim();
+            ViewModel.Loadcipher(fileName);
             cipherNameTb.Text = "";
         }
 
-        private void plainFileTb_TextChanged(object sender, TextChangedEventArgs e)
+        private void plainFileTb_FileChanged(object sender, string fileName)
         {
-            ViewModel.LoadPlain((sender as TextBox).Text.Trim());
+            Zip.CodePage = EncodingTb.Text.Trim();
+            ViewModel.LoadPlain(fileName);
             if (ViewModel.FindEqualsFile(out var cipherFile, out var plainFile))
             {
                 cipherNameTb.SelectedItem = cipherFile;
                 plainNameTb.SelectedItem = plainFile;
-            } else
+                GetBtn.IsEnabled = true;
+            }
+            else
             {
-                MessageBox.Show("No corresponding file exists");
+                MessageBox.Show(LocalizedLangExtension.GetString("plainError"));
+                GetBtn.IsEnabled = false;
+                plainNameTb.Text = string.Empty;
             }
         }
 
-        private void cipherFileTb_DragOver(object sender, DragEventArgs e)
+        private void GetBtn_Click(object sender, RoutedEventArgs e)
         {
-            e.Effects = DragDropEffects.Link;
-            e.Handled = true;
+            FindKeys();
         }
 
-        private void cipherFileTb_Drop(object sender, DragEventArgs e)
+        private void UnzipFileBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            if (string.IsNullOrWhiteSpace(cipherNameTb.Text))
             {
-                var file = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
-                if (string.IsNullOrEmpty(file))
-                {
-                    return;
-                }
-                (sender as TextBox).Text = file;
+                MessageBox.Show(LocalizedLangExtension.GetString("selectAFileTip"));
+                return;
             }
+            Unpack(true);
+        }
+
+        private void UnzipFilesBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Unpack();
+        }
+
+        private void ClearBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var box = MessageBox.Show(LocalizedLangExtension.GetString("clearTip"),
+                LocalizedLangExtension.GetString("tip"),
+                MessageBoxButton.YesNo);
+            if (box != MessageBoxResult.Yes)
+            {
+                return;
+            }
+            KeyTb.Text = plainFileTb.FileName = plainNameTb.Text = 
+                cipherNameTb.Text = cipherFileTb.FileName = string.Empty;
+            ViewModel.CipherItems.Clear();
+            ViewModel.PlainItems.Clear();
+            infoTb.Clear();
+            UnzipFileBtn.IsEnabled = UnzipFilesBtn.IsEnabled = GetBtn.IsEnabled = false;
+        }
+
+        private void KeyTb_TextChanged(object sender, string text)
+        {
+            UnzipFileBtn.IsEnabled = UnzipFilesBtn.IsEnabled = KeyTb.IsCompleted;
+        }
+
+        private void StopBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var box = MessageBox.Show(LocalizedLangExtension.GetString("stopTip"), 
+                LocalizedLangExtension.GetString("tip"), 
+                MessageBoxButton.YesNo);
+            if (box != MessageBoxResult.Yes)
+            {
+                return;
+            }
+            crackerTask?.Stop();
+            IsLoading = false;
+        }
+
+        private void Window_Unloaded(object sender, RoutedEventArgs e)
+        {
+            crackerTask?.Stop();
         }
     }
 }

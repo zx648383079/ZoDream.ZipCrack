@@ -11,6 +11,21 @@ namespace ZoDream.Shared
     public static class Zip
     {
 
+        public static string CodePage {
+            set
+            {
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                try
+                {
+                    ZipStrings.CodePage = Encoding.GetEncoding(value).CodePage;
+                }
+                catch (Exception)
+                {
+                    ZipStrings.UseUnicode = true;
+                }
+            }
+        }
+
         public static bool GetFileDataPosition(FileStream stream, string name, out long begin, out long end)
         {
             return GetFileDataPosition(stream, name, out var _, out begin, out end);
@@ -20,7 +35,7 @@ namespace ZoDream.Shared
         {
             begin = 0;
             end = 0;
-            RegisterEncoding();
+            // RegisterEncoding();
             using (var zipFile = new ZipFile(stream))
             {
                 zipFile.IsStreamOwner = false;
@@ -68,7 +83,7 @@ namespace ZoDream.Shared
         {
             var items = new List<ZipEntry>();
             // ZipStrings.UseUnicode = true;
-            RegisterEncoding();
+            // RegisterEncoding();
             using (var stream = new ZipFile(fs))
             {
                 stream.IsStreamOwner = false;
@@ -94,6 +109,22 @@ namespace ZoDream.Shared
                 return;
             }
             ZipStrings.UseUnicode = true;
+        }
+
+        public static string[] GetEncodings()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            return Encoding.GetEncodings().Select(i => i.Name).ToArray();
+        }
+
+        public static string DefaultEncoding()
+        {
+            var lang = System.Threading.Thread.CurrentThread.CurrentCulture.Name;
+            if (lang == "zh-CN" || lang == "zh-TW")
+            {
+                return "gb2312";
+            }
+            return "utf-8";
         }
     }
 }

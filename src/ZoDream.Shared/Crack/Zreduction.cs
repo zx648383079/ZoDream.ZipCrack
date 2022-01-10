@@ -107,7 +107,10 @@ namespace ZoDream.Shared.Crack
                     if (waiting && --wait == 0)
                         break;
                 }
-
+                if (Contrainer.Paused)
+                {
+                    return;
+                }
                 // put result in zi_vector
                 Util.Swap(ref ziVector, ref zim1_10_32_vector);
                 Contrainer.Logger?.Progress(keyStream.Count - i, keyStream.Count - Attack.CONTIGUOUS_SIZE);

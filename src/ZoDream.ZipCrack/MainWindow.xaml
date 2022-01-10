@@ -3,8 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ctl="clr-namespace:ZoDream.ZipCrack.Controls"
+        xmlns:ll="clr-namespace:ZoDream.ZipCrack.Utils"
         mc:Ignorable="d"
-        Title="Zip Cracker" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+        Loaded="Window_Loaded"
+        Unloaded="Window_Unloaded"
+        Title="Zip Cracker" Height="450" Width="800" 
+        WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -29,13 +34,11 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Cipher Zip" Style="{StaticResource LableTb}"/>
-            <TextBox x:Name="cipherFileTb" 
-                     PreviewDragOver="cipherFileTb_DragOver"
-                     PreviewDrop="cipherFileTb_Drop"
-                     TextChanged="cipherFileTb_TextChanged" Grid.Column="1" Style="{StaticResource InputTb}"/>
-            <Button x:Name="cipherBtn" Grid.Column="2" Content="Select Zip" Click="cipherBtn_Click"/>
-            <TextBlock Text="File Name" Grid.Column="3" Style="{StaticResource LableTb}"/>
+            <TextBlock Text="{ll:LocalizedLang cipherLabelText}" Style="{StaticResource LableTb}"/>
+            <ctl:FileInput x:Name="cipherFileTb" Grid.Column="1" FileChanged="cipherFileTb_FileChanged"/>
+            <ComboBox x:Name="EncodingTb" VerticalContentAlignment="Center" IsEditable="True" 
+                      Grid.Column="2" ItemsSource="{Binding EncodingItems}"/>
+            <TextBlock Text="{ll:LocalizedLang cipherFileLabelText}" Grid.Column="3" Style="{StaticResource LableTb}"/>
             <ComboBox x:Name="cipherNameTb" ItemsSource="{Binding CipherItems}" 
                       Grid.Column="4" Style="{StaticResource FileCb}"/>
         </Grid>
@@ -44,35 +47,41 @@
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Plain Zip" Style="{StaticResource LableTb}"/>
-            <TextBox x:Name="plainFileTb" PreviewDragOver="cipherFileTb_DragOver" 
-                     PreviewDrop="cipherFileTb_Drop" TextChanged="plainFileTb_TextChanged" Grid.Column="1"  Style="{StaticResource InputTb}"/>
-            <Button x:Name="plainBtn" Grid.Column="2" Content="Select Zip" Click="plainBtn_Click"/>
-            <TextBlock Text="File Name" Grid.Column="3" Style="{StaticResource LableTb}"/>
+            <TextBlock Text="{ll:LocalizedLang plainLabelText}" Style="{StaticResource LableTb}"/>
+            <ctl:FileInput x:Name="plainFileTb" FileChanged="plainFileTb_FileChanged" Grid.Column="1" />
+            <TextBlock Text="{ll:LocalizedLang cipherFileLabelText}" Grid.Column="2" Style="{StaticResource LableTb}"/>
             <ComboBox x:Name="plainNameTb" ItemsSource="{Binding PlainItems}"
                       Style="{StaticResource FileCb}"
-                      Grid.Column="4"/>
+                      Grid.Column="3"/>
         </Grid>
 
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Internal Keys" Style="{StaticResource LableTb}" ToolTip="Keys obtained through plaintext attacks "/>
-            <TextBox x:Name="key1Tb" TextChanged="key1Tb_TextChanged" Grid.Column="1" Style="{StaticResource InputTb}"/>
-            <TextBox x:Name="key2Tb" TextChanged="key1Tb_TextChanged" Grid.Column="2" Style="{StaticResource InputTb}"/>
-            <TextBox x:Name="key3Tb" TextChanged="key1Tb_TextChanged" Grid.Column="3" Style="{StaticResource InputTb}"/>
+            <TextBlock Text="{ll:LocalizedLang keyLabelText}" Style="{StaticResource LableTb}" ToolTip="Keys obtained through plaintext attacks "/>
+            <ctl:KeyInput x:Name="KeyTb" TextChanged="KeyTb_TextChanged" Grid.Column="1"/>
         </Grid>
 
-        <TextBox x:Name="infoTb" Grid.Row="3" Background="#f4f4f4" IsReadOnly="True"/>
+        <ctl:ConsoleContainer x:Name="infoTb" Grid.Row="3"/>
 
         <ProgressBar x:Name="progressBar" Grid.Row="4" Height="10" Visibility="Collapsed"/>
-        <Button x:Name="doBtn" Content="Get Keys" Click="doBtn_Click" Grid.Row="5"/>
+        <Grid x:Name="ActionPanel" Grid.Row="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="GetBtn" Content="{ll:LocalizedLang getBtnContent}" IsEnabled="False" Click="GetBtn_Click"/>
+            <Button x:Name="UnzipFileBtn" Content="{ll:LocalizedLang unzipFileBtnText}" IsEnabled="False" Click="UnzipFileBtn_Click" Grid.Column="1"/>
+            <Button x:Name="UnzipFilesBtn" Content="{ll:LocalizedLang unzipFilesBtnText}" IsEnabled="False" Click="UnzipFilesBtn_Click" Grid.Column="2"/>
+            <Button x:Name="ClearBtn" Content="{ll:LocalizedLang clearBtnText}" Click="ClearBtn_Click" Grid.Column="3"/>
+        </Grid>
+        <Button x:Name="StopBtn" Click="StopBtn_Click" 
+                Content="{ll:LocalizedLang stopBtnText}" Grid.Row="5" Visibility="Collapsed"/>
     </Grid>
 </Window>

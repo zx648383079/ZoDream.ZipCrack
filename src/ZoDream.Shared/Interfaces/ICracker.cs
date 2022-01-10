@@ -10,6 +10,7 @@ namespace ZoDream.Shared.Interfaces
     {
 
         public ILogger? Logger { get; }
+        public bool Paused { get; }
 
         public void Stop();
 

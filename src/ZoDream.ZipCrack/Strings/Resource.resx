@@ -112,57 +112,81 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="allFile" xml:space="preserve">
-    <value>所有文件</value>
+    <value>All Files</value>
   </data>
-  <data name="cipherFileLabel.Text" xml:space="preserve">
-    <value>文件名</value>
+  <data name="cipherFileLabelText" xml:space="preserve">
+    <value>File Name</value>
   </data>
-  <data name="cipherLabel.Text" xml:space="preserve">
-    <value>加密ZIP</value>
+  <data name="cipherLabelText" xml:space="preserve">
+    <value>Cipher Zip</value>
   </data>
-  <data name="getBtn.Content" xml:space="preserve">
-    <value>获取Keys</value>
+  <data name="clearBtnText" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="clearTip" xml:space="preserve">
+    <value>Are you confirm clear data?</value>
+  </data>
+  <data name="getBtnContent" xml:space="preserve">
+    <value>Get Keys</value>
   </data>
   <data name="getError" xml:space="preserve">
-    <value>获取Keys失败</value>
+    <value>Get Keys Failure</value>
   </data>
   <data name="getSuccess" xml:space="preserve">
-    <value>获取Keys成功</value>
+    <value>Get Keys Success</value>
   </data>
-  <data name="keyLabel.Text" xml:space="preserve">
-    <value>内部Keys</value>
+  <data name="keyLabelText" xml:space="preserve">
+    <value>Internal Keys</value>
   </data>
-  <data name="openBtn.Content" xml:space="preserve">
-    <value>选择ZIP</value>
+  <data name="openBtnContent" xml:space="preserve">
+    <value>Select Zip</value>
   </data>
   <data name="plainError" xml:space="preserve">
-    <value>不存在对应的文件</value>
+    <value>No corresponding file exists</value>
   </data>
-  <data name="plainLabel.Text" xml:space="preserve">
-    <value>未加密ZIP</value>
+  <data name="plainLabelText" xml:space="preserve">
+    <value>Plain Zip</value>
+  </data>
+  <data name="selectAFileTip" xml:space="preserve">
+    <value>Please Select a file name</value>
   </data>
   <data name="selectPlainTip" xml:space="preserve">
-    <value>选择未加密的压缩文件</value>
+    <value>Select the plain file</value>
   </data>
   <data name="selectZipTip" xml:space="preserve">
-    <value>选择加密过的压缩文件</value>
+    <value>Select the encrypted compressed file</value>
   </data>
-  <data name="unzipBtn.Content" xml:space="preserve">
-    <value>选择解压到文件夹</value>
+  <data name="stopBtnText" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="stopTip" xml:space="preserve">
+    <value>Are you confirm stop it?</value>
+  </data>
+  <data name="tip" xml:space="preserve">
+    <value>Tip</value>
+  </data>
+  <data name="unzipBtnContent" xml:space="preserve">
+    <value>Select unzip to folder</value>
   </data>
   <data name="unzipError" xml:space="preserve">
-    <value>解压失败</value>
+    <value>Unzip Failure</value>
+  </data>
+  <data name="unzipFileBtnText" xml:space="preserve">
+    <value>Unzip Current File</value>
+  </data>
+  <data name="unzipFilesBtnText" xml:space="preserve">
+    <value>Unzip All File</value>
   </data>
   <data name="unzipSuccess" xml:space="preserve">
-    <value>解压成功</value>
+    <value>Unzip Success</value>
   </data>
   <data name="zipName" xml:space="preserve">
-    <value>ZIP文件</value>
+    <value>Zip</value>
   </data>
 </root>

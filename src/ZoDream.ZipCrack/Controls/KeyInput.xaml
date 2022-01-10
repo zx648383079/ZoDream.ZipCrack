@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="ZoDream.ZipCrack.Controls.KeyInput"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ZoDream.ZipCrack.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="40" d:DesignWidth="400">
+    <Grid>
+        <TextBox x:Name="keyTb" TextChanged="keyTb_TextChanged" LostFocus="keyTb_LostFocus" MaxLines="1" Grid.ColumnSpan="3"/>
+        <Grid x:Name="keyLabelPanel" Background="#fff" MouseDown="keyLabelPanel_MouseDown">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="key1Label" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="key2Label" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1"/>
+            <TextBlock x:Name="key3Label" VerticalAlignment="Center" HorizontalAlignment="Center"  Grid.Column="2"/>
+        </Grid>
+    </Grid>
+</UserControl>

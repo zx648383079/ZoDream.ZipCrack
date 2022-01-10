@@ -23,13 +23,18 @@ namespace ZoDream.Shared
             Logger = logger;
         }
 
-        private CancellationTokenSource stopToken = new CancellationTokenSource();
+        private CancellationTokenSource stopToken = new();
 
         public ILogger? Logger { get; private set; }
 
+        public bool Paused => stopToken.IsCancellationRequested;
+
         public Task<KeyItem?> FindKeyAsync(string cipherFile, string cipherFileName, string plainFile, string plainFileName)
         {
-            stopToken = new CancellationTokenSource();
+            if (Paused)
+            {
+                stopToken = new CancellationTokenSource();
+            }
             return Task.Factory.StartNew(() => FindKey(cipherFile, cipherFileName, plainFile, plainFileName), stopToken.Token);
         }
 
@@ -50,7 +55,15 @@ namespace ZoDream.Shared
                 {
                     return null;
                 }
+                if (Paused)
+                {
+                    return null;
+                }
                 if (!Zip.GetFileDataPosition(plainStream, plainFileName, out var plainBegin, out var plainEnd))
+                {
+                    return null;
+                }
+                if (Paused)
                 {
                     return null;
                 }
@@ -84,6 +97,10 @@ namespace ZoDream.Shared
             cipherStream.Seek(cipherBegin, SeekOrigin.Begin);
             for (var i = cipherBegin; i < cipherEnd; i++)
             {
+                if (Paused)
+                {
+                    return null;
+                }
                 data.CipherText.Add((byte)cipherStream.ReadByte());
             }
             cipherStream.Close();
@@ -104,40 +121,53 @@ namespace ZoDream.Shared
                 return null;
             }
             data.Update();
+            if (Paused)
+            {
+                return null;
+            }
             var zr = new Zreduction(this, data.KeyStream);
             if (data.KeyStream.Count > Attack.SIZE)
             {
                 Logger?.Info($"Z reduction using {data.KeyStream.Count - Attack.CONTIGUOUS_SIZE} bytes of known plaintext");
                 zr.Reduce();
             }
+            if (Paused)
+            {
+                return null;
+            }
             zr.Generate();
             Logger?.Info($"Generated {zr.Count} Z values. ");
-
+            if (Paused)
+            {
+                return null;
+            }
             // iterate over remaining Zi[2,32) values
             var candidates = zr.ZiVector;
             var size = zr.Count;
             var done = 0;
-
             Logger?.Info($"Attack on {zr.Count}  Z values at index {data.Offset + zr.Index - CrackData.ENCRYPTION_HEADER_SIZE}");
-
             var attack = new Attack(data, zr.Index);
-
             var shouldStop = false;
-
             for (var i = 0; i < size; ++i) // OpenMP 2.0 requires signed index variable
             {
                 if (shouldStop)
                 {
                     continue; // cannot break out of an OpenMP for loop
                 }
-
+                if (Paused)
+                {
+                    return null;
+                }
                 attack.Carryout(candidates[i]);
                 {
+                    if (Paused)
+                    {
+                        return null;
+                    }
                     Logger?.Progress(++done, size);
                     shouldStop = attack.SolutionItems.Count > 0;
                 }
             }
-
             // print the keys
             // std::cout << "[" << put_time << "] ";
             if (attack.SolutionItems.Count < 1)
@@ -158,12 +188,20 @@ namespace ZoDream.Shared
 
         public Task<KeyItem?> FindKeyAsync(string cipherFile, long cipherBegin, long cipherTend, string plainFile, long plainBegin, long plainEnd)
         {
-            return Task.Factory.StartNew(() => FindKey(cipherFile, cipherBegin, cipherTend, plainFile, plainBegin, plainEnd));
+            if (Paused)
+            {
+                stopToken = new CancellationTokenSource();
+            }
+            return Task.Factory.StartNew(() => FindKey(cipherFile, cipherBegin, cipherTend, plainFile, plainBegin, plainEnd), stopToken.Token);
         }
 
         public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string distFolder)
         {
-            return Task.Factory.StartNew(() => Unpack(keys, cipherFile, distFolder));
+            if (Paused)
+            {
+                stopToken = new CancellationTokenSource();
+            }
+            return Task.Factory.StartNew(() => Unpack(keys, cipherFile, distFolder), stopToken.Token);
         }
 
         public bool Unpack(KeyItem keys, string cipherFile, string distFolder)
@@ -187,7 +225,10 @@ namespace ZoDream.Shared
 
         public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string cipherFileName, string distFolder)
         {
-            stopToken = new CancellationTokenSource();
+            if (Paused)
+            {
+                stopToken = new CancellationTokenSource();
+            }
             return Task.Factory.StartNew(() => Unpack(keys, cipherFile, cipherFileName, distFolder), stopToken.Token);
         }
 
@@ -376,6 +417,11 @@ namespace ZoDream.Shared
         public void Stop()
         {
             stopToken.Cancel();
+        }
+        
+        ~Cracker()
+        {
+            Stop();
         }
     }
 }
