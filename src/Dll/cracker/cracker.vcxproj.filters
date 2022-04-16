@@ -21,9 +21,6 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Arguments.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Attack.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -40,9 +37,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="KeystreamTab.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="log.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MultTab.hpp">
@@ -63,6 +57,15 @@
     <ClInclude Include="Zreduction.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Cracker.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Export.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -71,10 +74,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Cracker.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Arguments.cpp">
+    <ClCompile Include="Export.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Data.cpp">
@@ -95,9 +95,6 @@
     <ClCompile Include="KeystreamTab.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="log.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="MultTab.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -111,6 +108,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Zreduction.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Cracker.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

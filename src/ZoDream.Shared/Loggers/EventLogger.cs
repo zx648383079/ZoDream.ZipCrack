@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
+using System.Threading.Tasks;
 using ZoDream.Shared.Interfaces;
 
 namespace ZoDream.Shared.Loggers
@@ -17,6 +17,9 @@ namespace ZoDream.Shared.Loggers
         {
             Level = level;
         }
+
+        private bool isLoading = false;
+
         public LogLevel Level { get; private set; }
 
         public event LogEventHandler? OnLog;
@@ -27,6 +30,10 @@ namespace ZoDream.Shared.Loggers
             Log(LogLevel.Error, message);
         }
 
+        public void Debug(string message)
+        {
+            Log(LogLevel.Debug, message);
+        }
         public void Info(string message)
         {
             Log(LogLevel.Info, message);
@@ -43,15 +50,25 @@ namespace ZoDream.Shared.Loggers
             {
                 OnLog?.Invoke(message, level);
             }
-            Debug.WriteLine(message);
+            System.Diagnostics.Debug.WriteLine(message);
         }
 
         public void Progress(long current, long total)
         {
-            OnProgress?.Invoke(current, total);
+            if (isLoading)
+            {
+                return;
+            }
+            isLoading = true;
+            Task.Factory.StartNew(() =>
+            {
+
+                OnProgress?.Invoke(current, total);
+                isLoading = false;
+            });
         }
 
-        public void Waining(string message)
+        public void Warning(string message)
         {
             Log(LogLevel.Warn, message);
         }

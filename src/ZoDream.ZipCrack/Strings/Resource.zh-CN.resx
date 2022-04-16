@@ -132,17 +132,47 @@
   <data name="clearTip" xml:space="preserve">
     <value>确定要清空当前数据？</value>
   </data>
+  <data name="converterError" xml:space="preserve">
+    <value>转换失败</value>
+  </data>
+  <data name="converterSuccess" xml:space="preserve">
+    <value>转换成功</value>
+  </data>
+  <data name="converterZip" xml:space="preserve">
+    <value>解压成zip</value>
+  </data>
+  <data name="cvtBtnContent" xml:space="preserve">
+    <value>转换</value>
+  </data>
+  <data name="encodingLabelText" xml:space="preserve">
+    <value>编码</value>
+  </data>
+  <data name="fileLabelText" xml:space="preserve">
+    <value>明文文件</value>
+  </data>
   <data name="getBtnContent" xml:space="preserve">
     <value>获取Keys</value>
   </data>
   <data name="getError" xml:space="preserve">
     <value>获取Keys失败</value>
   </data>
+  <data name="getKey" xml:space="preserve">
+    <value>压缩包获取key</value>
+  </data>
+  <data name="getKeyByFile" xml:space="preserve">
+    <value>文件获取key</value>
+  </data>
+  <data name="getKeyByText" xml:space="preserve">
+    <value>明文获取key</value>
+  </data>
   <data name="getSuccess" xml:space="preserve">
     <value>获取Keys成功</value>
   </data>
   <data name="keyLabelText" xml:space="preserve">
     <value>内部Keys</value>
+  </data>
+  <data name="modeLabelText" xml:space="preserve">
+    <value>切换模式</value>
   </data>
   <data name="openBtnContent" xml:space="preserve">
     <value>选择ZIP</value>
@@ -152,6 +182,24 @@
   </data>
   <data name="plainLabelText" xml:space="preserve">
     <value>未加密ZIP</value>
+  </data>
+  <data name="pwdNewLabel" xml:space="preserve">
+    <value>新密码</value>
+  </data>
+  <data name="pwdRuleLabel" xml:space="preserve">
+    <value>密码规则</value>
+  </data>
+  <data name="recover" xml:space="preserve">
+    <value>获取密码</value>
+  </data>
+  <data name="recoverBtnContent" xml:space="preserve">
+    <value>尝试恢复</value>
+  </data>
+  <data name="recoverError" xml:space="preserve">
+    <value>修复密码失败</value>
+  </data>
+  <data name="recoverSuccess" xml:space="preserve">
+    <value>修复密码成功</value>
   </data>
   <data name="Select" xml:space="preserve">
     <value>选择</value>
@@ -174,8 +222,14 @@
   <data name="stopTip" xml:space="preserve">
     <value>确认要停止当前操作？</value>
   </data>
+  <data name="textLabelText" xml:space="preserve">
+    <value>明文字符串</value>
+  </data>
   <data name="tip" xml:space="preserve">
     <value>提示</value>
+  </data>
+  <data name="unzip" xml:space="preserve">
+    <value>解压</value>
   </data>
   <data name="unzipBtnContent" xml:space="preserve">
     <value>选择解压到文件夹</value>

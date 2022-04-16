@@ -151,14 +151,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Arguments.hpp" />
     <ClInclude Include="Attack.hpp" />
+    <ClInclude Include="Cracker.hpp" />
     <ClInclude Include="Crc32Tab.hpp" />
     <ClInclude Include="Data.hpp" />
+    <ClInclude Include="Export.hpp" />
     <ClInclude Include="file.hpp" />
     <ClInclude Include="Keys.hpp" />
     <ClInclude Include="KeystreamTab.hpp" />
-    <ClInclude Include="log.hpp" />
+    <ClInclude Include="Logger.hpp" />
     <ClInclude Include="MultTab.hpp" />
     <ClInclude Include="password.hpp" />
     <ClInclude Include="types.hpp" />
@@ -169,20 +170,20 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Arguments.cpp" />
     <ClCompile Include="Attack.cpp" />
+    <ClCompile Include="Cracker.cpp" />
     <ClCompile Include="Crc32Tab.cpp" />
     <ClCompile Include="Data.cpp" />
     <ClCompile Include="file.cpp" />
     <ClCompile Include="Keys.cpp" />
     <ClCompile Include="KeystreamTab.cpp" />
-    <ClCompile Include="log.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="MultTab.cpp" />
     <ClCompile Include="password.cpp" />
     <ClCompile Include="types.cpp" />
     <ClCompile Include="zip.cpp" />
     <ClCompile Include="Zreduction.cpp" />
-    <ClCompile Include="Cracker.cpp" />
+    <ClCompile Include="Export.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

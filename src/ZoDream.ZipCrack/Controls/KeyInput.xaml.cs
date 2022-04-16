@@ -12,7 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using ZoDream.Shared.Crack;
+using ZoDream.Shared.CSharp;
+using ZoDream.Shared.Models;
 
 namespace ZoDream.ZipCrack.Controls
 {
@@ -52,7 +53,7 @@ namespace ZoDream.ZipCrack.Controls
             }
             set
             {
-                Text = value.ToString();
+                Text = value == null ? string.Empty : value.ToString();
             }
         }
 
@@ -86,12 +87,12 @@ namespace ZoDream.ZipCrack.Controls
                     self.key2Label.Text = self.key3Label.Text = string.Empty;
                 return;
             }
-            self.KeyArray = e.NewValue.ToString().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            self.KeyArray = e.NewValue.ToString()!.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         private void keyTb_TextChanged(object sender, TextChangedEventArgs e)
         {
-            Text = (sender as TextBox).Text;
+            Text = (sender as TextBox)!.Text;
             TextChanged?.Invoke(this, Text);
         }
 

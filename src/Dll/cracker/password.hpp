@@ -1,15 +1,24 @@
 #ifndef BKCRACK_PASSWORD_HPP
 #define BKCRACK_PASSWORD_HPP
 
-#include "Keys.hpp"
 #include <bitset>
+
+#include "Keys.hpp"
+#include "Logger.hpp"
+
 
 /// Class to recover a password from internal keys
 class Recovery
 {
     public:
+        class Error : public BaseError
+        {
+        public:
+            /// Constructor
+            Error(const std::string& description);
+        };
         /// Constructor
-        Recovery(const Keys& keys, const bytevec& charset, bool& shouldStop);
+        Recovery(const Keys& keys, const bytevec& charset, Logger& logger);
 
         /// Look for a password of length 6 or less
         bool recoverShortPassword();
@@ -37,10 +46,12 @@ class Recovery
         const bytevec& charset;
         std::string password;
 
-        bool& shouldStop;
+        Logger& logger;
 };
 
+bytevec passwordCharset(const std::string& charsetArg);
+
 /// Try to recover the password associated with the given keys
-bool recoverPassword(const Keys& keys, std::size_t max_length, const bytevec& charset, std::string& password);
+bool recoverPassword(const Keys& keys, std::size_t max_length, const bytevec& charset, std::string& password, Logger& logger);
 
 #endif // BKCRACK_PASSWORD_HPP

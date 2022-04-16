@@ -1,13 +1,11 @@
 #include "pch.h"
 #include "Attack.hpp"
-#include "log.hpp"
 #include "Crc32Tab.hpp"
 #include "KeystreamTab.hpp"
 #include "MultTab.hpp"
 
-
-Attack::Attack(const Data& data, std::size_t index, std::vector<Keys>& solutions)
- : data(data), index(index + 1 - Attack::CONTIGUOUS_SIZE), solutions(solutions)
+Attack::Attack(const Data& data, std::size_t index, std::vector<Keys>& solutions, bool exhaustive, Logger& logger)
+ : data(data), index(index + 1 - Attack::CONTIGUOUS_SIZE), solutions(solutions), exhaustive(exhaustive), logger(logger)
 {}
 
 void Attack::carryout(uint32 z7_2_32)
@@ -91,11 +89,10 @@ void Attack::exploreYlists(int i)
 void Attack::testXlist()
 {
     // compute X7
-    for (int i = 5; i <= 7; i++) {
-        xlist[i] = (Crc32Tab::crc32(xlist[i - 1], data.plaintext[index + i - 1])
-            & MASK_8_32) // discard the LSB
-            | lsb(xlist[i]); // set the LSB
-    }
+    for(int i = 5; i <= 7; i++)
+        xlist[i] = (Crc32Tab::crc32(xlist[i-1], data.plaintext[index+i-1])
+                    & MASK_8_32) // discard the LSB
+                    | lsb(xlist[i]); // set the LSB
 
     // compute X3
     uint32 x = xlist[7];
@@ -110,16 +107,14 @@ void Attack::testXlist()
     // decipher and filter by comparing with remaining contiguous plaintext forward
     Keys keysForward(xlist[7], ylist[7], zlist[7]);
     keysForward.update(data.plaintext[index+7]);
-    
     for(bytevec::const_iterator p = data.plaintext.begin() + index + 8,
             c = data.ciphertext.begin() + data.offset + index + 8;
             p != data.plaintext.end();
             ++p, ++c)
     {
-        if((*c ^ KeystreamTab::getByte(keysForward.getZ())) != *p)
+        if((*c ^ keysForward.getK()) != *p)
             return;
         keysForward.update(*p);
-        
     }
 
     std::size_t indexForward = data.offset + data.plaintext.size();
@@ -127,14 +122,13 @@ void Attack::testXlist()
     // and also backward
     Keys keysBackward(x, ylist[3], zlist[3]);
     using rit = std::reverse_iterator<bytevec::const_iterator>;
-    for(
-        rit p = rit(data.plaintext.begin() + index + 3),
+    for(rit p = rit(data.plaintext.begin() + index + 3),
             c = rit(data.ciphertext.begin() + data.offset + index + 3);
             p != data.plaintext.rend();
             ++p, ++c)
     {
         keysBackward.updateBackward(*c);
-        if((*c ^ KeystreamTab::getByte(keysBackward.getZ())) != *p)
+        if((*c ^ keysBackward.getK()) != *p)
             return;
     }
 
@@ -148,14 +142,13 @@ void Attack::testXlist()
         {
             keysBackward.updateBackward(data.ciphertext, indexBackward, extra.first);
             indexBackward = extra.first;
-            p = data.ciphertext[indexBackward] ^ KeystreamTab::getByte(keysBackward.getZ());
+            p = data.ciphertext[indexBackward] ^ keysBackward.getK();
         }
         else
         {
             keysForward.update(data.ciphertext, indexForward, extra.first);
-            
             indexForward = extra.first;
-            p = data.ciphertext[indexForward] ^ KeystreamTab::getByte(keysForward.getZ());
+            p = data.ciphertext[indexForward] ^ keysForward.getK();
         }
 
         if(p != extra.second)
@@ -168,10 +161,33 @@ void Attack::testXlist()
     keysBackward.updateBackward(data.ciphertext, indexBackward, 0);
 
     #pragma omp critical
+    solutions.push_back(keysBackward);
+
+    char buffer[100];
+    sprintf_s(buffer, "%d %d %d", keysBackward.getX(), keysBackward.getY(), keysBackward.getZ());
+    logger.Info(buffer);
+}
+
+std::vector<Keys> attack(const Data& data, const u32vec& zi_2_32_vector, std::size_t index, const bool exhaustive, Logger& logger)
+{
+    const uint32* candidates = zi_2_32_vector.data();
+    const std::int32_t size = zi_2_32_vector.size();
+
+    std::vector<Keys> solutions;
+    Attack worker(data, index, solutions, exhaustive, logger);
+
+    logger.Progress(0, size);
+
+    #pragma omp parallel for firstprivate(worker) schedule(dynamic)
+    for(std::int32_t i = 0; i < size; ++i) // OpenMP 2.0 requires signed index variable
     {
-#ifndef _USRDLL
-        std::cout << "Keys: " << keysBackward << std::endl;
-#endif // !_USRDLL
-        solutions.push_back(keysBackward);
+        if(logger.IsCancellationRequested)
+            continue; // cannot break out of an OpenMP for loop
+
+        worker.carryout(candidates[i]);
+
+        logger.Progress(i+1, size);
     }
+
+    return solutions;
 }

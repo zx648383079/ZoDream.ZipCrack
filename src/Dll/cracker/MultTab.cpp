@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "MultTab.hpp"
 
-
 const MultTab MultTab::instance;
 
 MultTab::MultTab()

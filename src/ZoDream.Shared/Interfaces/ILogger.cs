@@ -14,9 +14,12 @@ namespace ZoDream.Shared.Interfaces
 
         public void Info(string message);
 
-        public void Waining(string message);
+        public void Warning(string message);
 
         public void Error(string message);
+        public void Debug(string message);
+
+
 
         /// <summary>
         /// 进度

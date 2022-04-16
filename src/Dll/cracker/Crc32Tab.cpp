@@ -1,7 +1,5 @@
 #include "pch.h"
 #include "Crc32Tab.hpp"
-#include <iostream>
-
 
 const Crc32Tab Crc32Tab::instance;
 

@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ZoDream.Shared;
+using ZoDream.Shared.CSharp;
 using ZoDream.Shared.Models;
 
 namespace ZoDream.ZipCrack.ViewModels

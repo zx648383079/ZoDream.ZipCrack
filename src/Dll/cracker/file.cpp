@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "file.hpp"
 
-
 FileError::FileError(const std::string& description)
  : BaseError("File error", description)
 {}

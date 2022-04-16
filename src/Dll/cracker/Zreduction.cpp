@@ -1,12 +1,10 @@
 #include "pch.h"
 #include "Zreduction.hpp"
-#include "log.hpp"
 #include "Attack.hpp"
 #include "Crc32Tab.hpp"
 #include "KeystreamTab.hpp"
 #include <algorithm>
 #include <bitset>
-
 
 Zreduction::Zreduction(const bytevec& keystream)
  : keystream(keystream)
@@ -17,10 +15,9 @@ Zreduction::Zreduction(const bytevec& keystream)
     for(uint32 zi_10_32_shifted = 0; zi_10_32_shifted < 1<<22; zi_10_32_shifted++)
         if(KeystreamTab::hasZi_2_16(keystream[index], zi_10_32_shifted << 10))
             zi_vector.push_back(zi_10_32_shifted << 10);
-
 }
 
-void Zreduction::reduce()
+void Zreduction::reduce(Logger& logger)
 {
     // variables to keep track of the smallest Zi[2,32) vector
     bool tracking = false;
@@ -35,6 +32,9 @@ void Zreduction::reduce()
     zim1_10_32_vector.reserve(1<<22);
     std::bitset<1<<22> zim1_10_32_set;
 
+    int progress = 0;
+    int total = keystream.size() - Attack::CONTIGUOUS_SIZE;
+    logger.Progress(progress, total);
     for(std::size_t i = index; i >= Attack::CONTIGUOUS_SIZE; i--)
     {
         zim1_10_32_vector.clear();
@@ -86,9 +86,8 @@ void Zreduction::reduce()
         // put result in zi_vector
         std::swap(zi_vector, zim1_10_32_vector);
 
-
+        logger.Progress(++progress, total);
     }
-    
 
     if(tracking)
     {
@@ -113,14 +112,9 @@ void Zreduction::generate()
     }
 }
 
-std::size_t Zreduction::size() const
+const u32vec& Zreduction::getCandidates() const
 {
-    return zi_vector.size();
-}
-
-const uint32* Zreduction::data() const
-{
-    return zi_vector.data();
+    return zi_vector;
 }
 
 std::size_t Zreduction::getIndex() const

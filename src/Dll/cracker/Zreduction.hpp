@@ -2,6 +2,7 @@
 #define BKCRACK_ZREDUCTION_HPP
 
 #include "types.hpp"
+#include "Logger.hpp"
 
 /// Generate and reduce Z values
 class Zreduction
@@ -11,16 +12,13 @@ class Zreduction
         Zreduction(const bytevec& keystream);
 
         /// Reduce Zi[10,32) number using extra contiguous keystream
-        void reduce();
+        void reduce(Logger& logger);
 
         /// Extend Zi[10,32) values into Zi[2,32) values using keystream
         void generate();
 
-        /// \return the number of Zi[2,32) values
-        std::size_t size() const;
-
-        /// \return a pointer to the beginning of the Zi[2,32) values
-        const uint32* data() const;
+        /// \return the generated Zi[2,32) values
+        const u32vec& getCandidates() const;
 
         /// \return the index of the Zi[2,32) values relative to keystream
         std::size_t getIndex() const;

@@ -1,11 +1,8 @@
 #include "pch.h"
 #include "zip.hpp"
-#include "KeystreamTab.hpp"
-#include "log.hpp"
 #include <algorithm>
 #include <map>
 #include <iterator>
-
 
 namespace
 {
@@ -117,7 +114,7 @@ ZipIterator& ZipIterator::operator++()
         uint16 size;
         read(*m_is, id);
         read(*m_is, size);
-        remaining -= 4;
+        remaining -= 4 + size;
 
         if(id == 0x0001) // Zip64 extended information
         {
@@ -125,31 +122,38 @@ ZipIterator& ZipIterator::operator++()
             if(8 <= size && uncompressedSize == MASK_0_32)
             {
                 m_is->seekg(8, std::ios::cur);
-                remaining -= 8;
                 size -= 8;
             }
             if(8 <= size && m_entry.size == MASK_0_32)
             {
                 read(*m_is, m_entry.size);
-                remaining -= 8;
                 size -= 8;
             }
             if(8 <= size && m_entry.offset == MASK_0_32)
             {
                 read(*m_is, m_entry.offset);
-                remaining -= 8;
                 size -= 8;
             }
+        }
+        else if(id == 0x7075) // Info-ZIP Unicode Path
+        {
+            uint32 nameCrc32 = MASK_0_32;
+            for (byte b : m_entry.name)
+                nameCrc32 = Crc32Tab::crc32(nameCrc32, b);
+            nameCrc32 ^= MASK_0_32;
 
-            // skip the remaining extra field bytes
-            m_is->seekg(remaining, std::ios::cur);
-            remaining = 0;
+            uint32 expectedNameCrc32;
+            m_is->seekg(1, std::ios::cur);
+            read(*m_is, expectedNameCrc32);
+            size -= 5;
+
+            if (nameCrc32 == expectedNameCrc32)
+                read(*m_is, m_entry.name, size);
         }
         else
         {
             // skip this data block
             m_is->seekg(size, std::ios::cur);
-            remaining -= size;
         }
     }
 
@@ -243,10 +247,11 @@ std::istream& openZipEntry(std::istream& is, const ZipEntry& entry)
         throw ZipError("could not find local file header");
 
     // skip local file header
-    uint16 extraSize;
-    is.seekg(24, std::ios::cur);
+    uint16 nameSize, extraSize;
+    is.seekg(22, std::ios::cur);
+    read(is, nameSize);
     read(is, extraSize);
-    is.seekg(entry.name.size() + extraSize, std::ios::cur);
+    is.seekg(nameSize + extraSize, std::ios::cur);
 
     return is;
 }
@@ -286,10 +291,10 @@ bytevec loadZipEntry(const std::string& archive, const std::string& entry, ZipEn
 {
     std::size_t entrySize;
     std::ifstream is = openZipEntry(archive, entry, expected, entrySize);
-    return loadStream(is, min(entrySize, size));
+    return loadStream(is, (std::min)(entrySize, size));
 }
 
-void changeKeys(std::istream& is, std::ostream& os, const Keys& oldKeys, const Keys& newKeys)
+void changeKeys(std::istream& is, std::ostream& os, const Keys& oldKeys, const Keys& newKeys, Logger& logger)
 {
     // Store encrypted entries local file header offset and packed size.
     // Use std::map to sort them by local file header offset.
@@ -305,15 +310,9 @@ void changeKeys(std::istream& is, std::ostream& os, const Keys& oldKeys, const K
     is.seekg(0, std::ios::beg);
     uint64 currentOffset = 0;
 
-    int index = 0;
-    if (!packedSizeByLocalOffset.empty()) {
-#ifndef _USRDLL
-        std::cout << progress(index, packedSizeByLocalOffset.size()) << std::flush << "\r";
-#endif // !_USRDLL
-
-    }
-        
-
+    int progress = 0;
+    int total = packedSizeByLocalOffset.size();
+    logger.Progress(progress, total);
     for(const std::pair<uint64, uint64>& pair : packedSizeByLocalOffset)
     {
         const uint64& localHeaderOffset = pair.first,
@@ -326,14 +325,8 @@ void changeKeys(std::istream& is, std::ostream& os, const Keys& oldKeys, const K
         }
 
         if(!checkSignature(is, Signature::LOCAL_FILE_HEADER))
-        {
-#ifndef _USRDLL
-            std::cout << std::endl;
-#endif // !_USRDLL
-
-            
             throw ZipError("could not find local file header");
-        }
+
         write(os, static_cast<uint32>(Signature::LOCAL_FILE_HEADER));
 
         std::copy_n(std::istreambuf_iterator<char>(is), 22, std::ostreambuf_iterator<char>(os));
@@ -357,28 +350,33 @@ void changeKeys(std::istream& is, std::ostream& os, const Keys& oldKeys, const K
         std::generate_n(std::ostreambuf_iterator<char>(os), packedSize,
             [&in, &decrypt, &encrypt]() -> char
             {
-                byte p = *in++ ^ KeystreamTab::getByte(decrypt.getZ());
-                byte c = p ^ KeystreamTab::getByte(encrypt.getZ());
+                byte p = *in++ ^ decrypt.getK();
+                byte c = p ^ encrypt.getK();
                 decrypt.update(p);
                 encrypt.update(p);
                 return c;
             });
 
         currentOffset = localHeaderOffset + 30 + filenameLength + extraSize + packedSize;
-#ifndef _USRDLL
-        std::cout << progress(++index, packedSizeByLocalOffset.size()) << std::flush << "\r";
-#endif // !_USRDLL
 
-        
+        logger.Progress(++progress, total);
     }
 
     std::copy(std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(os));
+}
 
-    if (!packedSizeByLocalOffset.empty()) {
-#ifndef _USRDLL
-        std::cout << std::endl;
-#endif // !_USRDLL
+void decipher(std::istream& is, std::size_t size, std::size_t discard, std::ostream& os, Keys keys)
+{
+    std::istreambuf_iterator<char> cipher(is);
+    std::size_t i;
 
+    for(i = 0; i < discard && i < size && cipher != std::istreambuf_iterator<char>(); i++, ++cipher)
+       keys.update(*cipher ^ keys.getK());
+
+    for(std::ostreambuf_iterator<char> plain(os); i < size && cipher != std::istreambuf_iterator<char>(); i++, ++cipher, ++plain)
+    {
+        byte p = *cipher ^ keys.getK();
+        keys.update(p);
+        *plain = p;
     }
-        
 }

@@ -14,6 +14,7 @@ namespace ZoDream.Shared.Models
 
         public long Size { get; set; } = 0;
 
+
         public FileItem(string name, string crc32)
         {
             Name = name;

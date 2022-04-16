@@ -1,12 +1,32 @@
 #include "pch.h"
 #include "password.hpp"
-#include "log.hpp"
 #include "Crc32Tab.hpp"
 #include "MultTab.hpp"
+#include <atomic>
 
+namespace
+{
 
-Recovery::Recovery(const Keys& keys, const bytevec& charset, bool& shouldStop)
-: charset(charset), shouldStop(shouldStop)
+    std::bitset<256> charRange(char first, char last)
+    {
+        std::bitset<256> bitset;
+
+        do
+        {
+            bitset.set(first);
+        } while (first++ != last);
+
+        return bitset;
+    }
+
+} // namespace
+
+Recovery::Error::Error(const std::string& description)
+    : BaseError("Password error", description)
+{}
+
+Recovery::Recovery(const Keys& keys, const bytevec& charset, Logger& logger)
+: charset(charset), logger(logger)
 {
     // initialize target X, Y and Z values
     x[6] = keys.getX();
@@ -80,7 +100,7 @@ bool Recovery::recoverLongPassword(const Keys& initial, std::size_t length)
     }
     else
     {
-        if(shouldStop)
+        if(logger.IsCancellationRequested)
             return false;
 
         for(byte pi : charset)
@@ -172,7 +192,6 @@ bool Recovery::recursion(int i)
         if(x[0] == x0) // the password is successfully recovered
         {
             password.assign(p.begin(), p.end());
-            shouldStop = true;
             return true;
         }
     }
@@ -180,17 +199,12 @@ bool Recovery::recursion(int i)
     return false;
 }
 
-bool recoverPassword(const Keys& keys, std::size_t max_length, const bytevec& charset, std::string& password)
+bool recoverPassword(const Keys& keys, std::size_t max_length, const bytevec& charset, std::string& password, Logger& logger)
 {
-    bool found = false;
-    Recovery worker(keys, charset, found);
+    Recovery worker(keys, charset, logger);
 
     // look for a password of length between 0 and 6
-#ifndef _USRDLL
-    std::cout << "length 0-6..." << std::endl;
-#endif // !_USRDLL
-
-    
+    logger.Debug("length 0-6...");
 
     if(worker.recoverShortPassword())
     {
@@ -201,10 +215,9 @@ bool recoverPassword(const Keys& keys, std::size_t max_length, const bytevec& ch
     // look for a password of length between 7 and 9
     for(std::size_t length = 7; length < 10 && length <= max_length; length++)
     {
-#ifndef _USRDLL
-        std::cout << "length " << length << "..." << std::endl;
-#endif // !_USRDLL
-
+        char buffer[50];
+        sprintf_s(buffer, "length %d...", length);
+        logger.Debug(buffer);
         if(worker.recoverLongPassword(Keys{}, length))
         {
             password = worker.getPassword();
@@ -216,20 +229,22 @@ bool recoverPassword(const Keys& keys, std::size_t max_length, const bytevec& ch
     // same as above, but in a parallel loop
     for(std::size_t length = 10; length <= max_length; length++)
     {
-#ifndef _USRDLL
-        std::cout << "length " << length << "..." << std::endl;
-#endif // !_USRDLL
+        const int charsetSize = charset.size();
 
+        std::atomic<bool> found = false;
         
 
-        const int charsetSize = charset.size();
-        int done = 0;
+        char buffer[100];
+        sprintf_s(buffer, "length %I64d...", length);
+        logger.Debug(buffer);
+        int total = charsetSize * charsetSize;
+        logger.Progress(0, total);
 
         // bruteforce two characters to have many tasks for each CPU thread and share work evenly
         #pragma omp parallel for firstprivate(worker) schedule(dynamic)
         for(std::int32_t i = 0; i < charsetSize * charsetSize; i++)
         {
-            if(found)
+            if(logger.IsCancellationRequested)
                 continue; // cannot break out of an OpenMP for loop
 
             Keys init;
@@ -241,25 +256,68 @@ bool recoverPassword(const Keys& keys, std::size_t max_length, const bytevec& ch
                 password = worker.getPassword();
                 password.insert(password.begin(), charset[i % charsetSize]);
                 password.insert(password.begin(), charset[i / charsetSize]);
+                found = true;
+                logger.IsCancellationRequested = true;
             }
 
-            #pragma omp critical
-#ifndef _USRDLL
-            std::cout << progress(++done, charsetSize * charsetSize) << std::flush << "\r";
-#endif // !_USRDLL
-
-            
+            logger.Progress(i+1, total);
         }
-
-#ifndef _USRDLL
-        std::cout << std::endl;
-#endif // !_USRDLL
-
-        
 
         if(found)
             return true;
     }
 
     return false;
+}
+
+bytevec passwordCharset(const std::string& charsetArg)
+{
+    const std::bitset<256>
+        lowercase = charRange('a', 'z'),
+        uppercase = charRange('A', 'Z'),
+        digits = charRange('0', '9'),
+        alphanum = lowercase | uppercase | digits,
+        printable = charRange(' ', '~'),
+        punctuation = printable & ~alphanum;
+
+    if (charsetArg.empty())
+        throw Recovery::Error("the charset for password recovery is empty");
+
+    std::bitset<256> charset;
+
+    for (auto it = charsetArg.begin(); it != charsetArg.end(); ++it)
+    {
+        if (*it == '?') // escape character for predefined charsets
+        {
+            if (++it == charsetArg.end())
+            {
+                charset.set('?');
+                break;
+            }
+
+            switch (*it)
+            {
+            case 'l': charset |= lowercase;   break;
+            case 'u': charset |= uppercase;   break;
+            case 'd': charset |= digits;      break;
+            case 's': charset |= punctuation; break;
+            case 'a': charset |= alphanum;    break;
+            case 'p': charset |= printable;   break;
+            case 'b': charset.set();          break;
+            case '?': charset.set('?');       break;
+
+            default:
+                throw Recovery::Error(std::string("unknown charset ?") + *it);
+            }
+        }
+        else
+            charset.set(*it);
+    }
+
+    bytevec result;
+    for (int c = 0; c < 256; c++)
+        if (charset[c])
+            result.push_back(c);
+
+    return result;
 }

@@ -1,8 +1,6 @@
 #ifndef BKCRACK_KEYS_HPP
 #define BKCRACK_KEYS_HPP
 
-#include <iostream>
-
 #include "Crc32Tab.hpp"
 #include "KeystreamTab.hpp"
 #include "MultTab.hpp"
@@ -33,7 +31,7 @@ class Keys
         {
             z = Crc32Tab::crc32inv(z, msb(y));
             y = (y - 1) * MultTab::MULTINV - lsb(x);
-            x = Crc32Tab::crc32inv(x, c ^ KeystreamTab::getByte(z));
+            x = Crc32Tab::crc32inv(x, c ^ getK());
         }
 
         /// Update the state backward with a plaintext byte
@@ -56,12 +54,11 @@ class Keys
         /// \return Z value
         uint32 getZ() const { return z; }
 
+        /// \return the keystream byte derived from the keys
+        byte getK() const { return KeystreamTab::getByte(z); }
+
     private:
         uint32 x, y, z;
 };
-
-/// \brief Insert a representation of keys into the stream \a os
-/// \relates Keys
-std::ostream& operator<<(std::ostream& os, const Keys& keys);
 
 #endif // BKCRACK_KEYS_HPP
