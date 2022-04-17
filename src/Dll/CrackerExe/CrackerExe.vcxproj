@@ -108,6 +108,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\Documents\GitHub\ZoDream.ZipCrack\src\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cracker.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -130,20 +132,23 @@
     <ClCompile Include="Arguments.cpp" />
     <ClCompile Include="ConsoleLogger.cpp" />
     <ClCompile Include="CrackerExe.cpp" />
+    <ClCompile Include="log.cpp" />
     <ClCompile Include="Logger.cpp" />
-    <ClCompile Include="VirtualTerminalSupport.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="types.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Arguments.hpp" />
     <ClInclude Include="ConsoleLogger.hpp" />
     <ClInclude Include="Cracker.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="log.hpp" />
     <ClInclude Include="Logger.hpp" />
-    <ClInclude Include="VirtualTerminalSupport.hpp" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="types.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\cracker\cracker.vcxproj">
-      <Project>{d8ce04f2-8de6-45ad-94f0-323410a141f1}</Project>
-    </ProjectReference>
+    <None Include="version.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

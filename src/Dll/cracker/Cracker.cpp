@@ -64,18 +64,14 @@ std::vector<Keys> Cracker::FindKey(bytevec cipherData, bytevec plainData)
 
 	if (data.keystream.size() > Attack::CONTIGUOUS_SIZE)
 	{
-		char buffer[100];
-		sprintf_s(buffer, "Z reduction using %d bytes of known plaintext", data.keystream.size() - Attack::CONTIGUOUS_SIZE);
-		logger.Info(buffer);
+		logger.Info("Z reduction using %d bytes of known plaintext", data.keystream.size() - Attack::CONTIGUOUS_SIZE);
 		zr.reduce(logger);
 	}
     // generate Zi[2,32) values
     zr.generate();
 
-	char buffer[100];
-	sprintf_s(buffer, "Attack on %d  Z values at index %d", zr.getCandidates().size(), 
+	logger.Info("Attack on %d  Z values at index %d", zr.getCandidates().size(),
 		data.offset + zr.getIndex() - Data::ENCRYPTION_HEADER_SIZE);
-	logger.Info(buffer);
     return attack(data, zr.getCandidates(), zr.getIndex(), Exhaustive, logger);
 
 }

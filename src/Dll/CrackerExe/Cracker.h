@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include "../cracker/types.hpp"
+#include "types.hpp"
 struct KeyStruct
 {
     std::uint32_t x, y, z;

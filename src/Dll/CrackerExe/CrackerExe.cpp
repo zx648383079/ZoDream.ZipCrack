@@ -3,10 +3,11 @@
 
 #include <iostream>
 #include <bitset>
-#include "VirtualTerminalSupport.hpp"
+#include "pch.h"
 #include "Arguments.hpp"
 #include "ConsoleLogger.hpp"
 #include "Cracker.h"
+#include "log.hpp"
 
 
 const char* usage = R"_(usage: bkcrack [options]
@@ -56,53 +57,83 @@ Optional:
 ConsoleLogger logger(Logger::LogLevel::Debug, std::cout);
 int main(int argc, char const* argv[])
 {
-    // enable virtual terminal support on Windows, no-op on other platforms
-    VirtualTerminalSupport vtSupport;
-
-    // setup output stream
-    // std::cout << setupLog << std::endl;
-    ProgressCallBack callback = [](int progress, int total, const char* str)->bool {
-        return logger.Callback(progress, total, str);
-    };
-    const Arguments args(argc, argv);
-    if (args.help)
+    try
     {
-        std::cout << usage << std::endl;
-        return 0;
+        // setup output stream
+        std::cout << setupLog << std::endl;
+        ProgressCallBack callback = [](int progress, int total, const char* str)->bool {
+            return logger.Callback(progress, total, str);
+        };
+        const Arguments args(argc, argv);
+        if (args.help)
+        {
+            std::cout << usage << std::endl;
+            return 0;
+        }
+
+        else
+            // find keys from known plaintext
+        {
+            KeyStruct keys = FindKey(args.cipherarchive.c_str(),
+                args.cipherfile.c_str(), args.plainarchive.c_str(),
+                args.plainfile.c_str(), callback);
+            if (keys.x == 0 && keys.y == 0 && keys.z == 0) {
+                std::cout << "Could not find the keys." << std::endl;
+                return 1;
+            }
+            else {
+                std::cout << "Keys" << std::endl;
+                std::cout << keys << std::endl;
+            }
+        }
+
+        // From there, keysvec is not empty.
+
+        // decipher
+        if (!args.decipheredfile.empty())
+        {
+            Unpack3(args.keys, args.cipherarchive.c_str(), args.cipherfile.c_str(),
+                args.decipheredfile.c_str(), callback);
+
+            std::cout << "Wrote deciphered data." << std::endl;
+        }
+
+        // unlock
+        if (!args.unlockedarchive.empty())
+        {
+            Pack2(args.keys, args.cipherarchive.c_str(), args.unlockedarchive.c_str(),
+                args.newPassword.c_str(), callback);
+
+            std::cout << "Wrote unlocked archive." << std::endl;
+        }
+
+        // recover password
+        if (args.maxLength)
+        {
+            char* password{};
+            bool res = Recover(args.keys,
+                args.maxLength, args.charset.c_str(),
+                password, callback);
+            if (res) {
+                std::cout << "[" << put_time << "] Password" << std::endl;
+                std::cout << "as text: " << password << std::endl;
+            }
+            else {
+                std::cout << "[" << put_time << "] Could not recover password" << std::endl;
+                return 1;
+            }
+        }
     }
-
-    else
-        // find keys from known plaintext
+    catch (const Arguments::Error& e)
     {
-        KeyStruct keys = FindKey(args.cipherarchive.c_str(), 
-            args.cipherfile.c_str(), args.plainarchive.c_str(), 
-            args.plainfile.c_str(), callback);
+        std::cout << e.what() << std::endl;
+        std::cout << "Run 'bkcrack -h' for help." << std::endl;
+        return 1;
     }
-
-    // From there, keysvec is not empty.
-
-    // decipher
-    if (!args.decipheredfile.empty())
+    catch (const BaseError& e)
     {
-        Unpack3(args.keys, args.cipherarchive.c_str(), args.cipherfile.c_str(), 
-            args.decipheredfile.c_str(), callback);
-    }
-
-    // unlock
-    if (!args.unlockedarchive.empty())
-    {
-        Pack2(args.keys, args.cipherarchive.c_str(), args.unlockedarchive.c_str(), 
-            args.newPassword.c_str(), callback);
-    }
-
-    // recover password
-    if (args.maxLength)
-    {
-        char* password;
-        Recover(args.keys,
-            args.maxLength, args.charset.c_str(),
-            password, callback);
-
+        std::cout << e.what() << std::endl;
+        return 1;
     }
 
     return 0;

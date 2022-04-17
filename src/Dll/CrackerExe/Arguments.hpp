@@ -3,9 +3,7 @@
 
 #include <map>
 
-#include <cstddef>
-#include <rpcndr.h>
-#include "../cracker/types.hpp"
+#include "types.hpp"
 #include "Cracker.h"
 
 /// Parse and store arguments

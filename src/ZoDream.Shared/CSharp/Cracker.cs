@@ -521,7 +521,8 @@ namespace ZoDream.Shared.CSharp
 
         public Task<bool> PackAsync(KeyItem keys, string cipherFile, string distFile, string password)
         {
-            throw new NotImplementedException();
+            Logger?.Error("Converter zip need TODO");
+            return Task.FromResult(false);
         }
 
         public Task<string> RecoverPasswordAsync(KeyItem keys, string rule)

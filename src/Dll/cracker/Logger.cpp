@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Logger.hpp";
+#include "Logger.hpp"
 
 Logger::Logger() : Level{ LogLevel::Debug } {
 

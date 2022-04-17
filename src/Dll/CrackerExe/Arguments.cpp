@@ -1,6 +1,6 @@
-#include "Arguments.hpp"
 #include <algorithm>
 #include <bitset>
+#include "Arguments.hpp"
 
 Arguments::Error::Error(const std::string& description)
  : BaseError("Arguments error", description)

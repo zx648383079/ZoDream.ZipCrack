@@ -215,9 +215,7 @@ bool recoverPassword(const Keys& keys, std::size_t max_length, const bytevec& ch
     // look for a password of length between 7 and 9
     for(std::size_t length = 7; length < 10 && length <= max_length; length++)
     {
-        char buffer[50];
-        sprintf_s(buffer, "length %d...", length);
-        logger.Debug(buffer);
+        logger.Debug("length %d...", length);
         if(worker.recoverLongPassword(Keys{}, length))
         {
             password = worker.getPassword();
@@ -234,9 +232,7 @@ bool recoverPassword(const Keys& keys, std::size_t max_length, const bytevec& ch
         std::atomic<bool> found = false;
         
 
-        char buffer[100];
-        sprintf_s(buffer, "length %I64d...", length);
-        logger.Debug(buffer);
+        logger.Debug("length %I64d...", length);
         int total = charsetSize * charsetSize;
         logger.Progress(0, total);
 

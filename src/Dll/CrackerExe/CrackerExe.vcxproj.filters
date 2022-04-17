@@ -24,10 +24,16 @@
     <ClCompile Include="ConsoleLogger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="VirtualTerminalSupport.cpp">
+    <ClCompile Include="Logger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Logger.cpp">
+    <ClCompile Include="pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="types.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,14 +44,28 @@
     <ClInclude Include="ConsoleLogger.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="VirtualTerminalSupport.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Cracker.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Logger.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="types.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="log.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="version.hpp">
+      <Filter>头文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -163,9 +163,7 @@ void Attack::testXlist()
     #pragma omp critical
     solutions.push_back(keysBackward);
 
-    char buffer[100];
-    sprintf_s(buffer, "%d %d %d", keysBackward.getX(), keysBackward.getY(), keysBackward.getZ());
-    logger.Info(buffer);
+    logger.Info("%d %d %d", keysBackward.getX(), keysBackward.getY(), keysBackward.getZ());
 }
 
 std::vector<Keys> attack(const Data& data, const u32vec& zi_2_32_vector, std::size_t index, const bool exhaustive, Logger& logger)
