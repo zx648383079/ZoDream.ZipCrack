@@ -7,7 +7,7 @@ namespace ZoDream.Shared.CSharp
 {
     public class KeystreamTab
     {
-        public static KeystreamTab Instance = new KeystreamTab();
+        public static KeystreamTab Instance = new();
 
         public byte[] Tab { get; set; } = new byte[1 << 14];
 

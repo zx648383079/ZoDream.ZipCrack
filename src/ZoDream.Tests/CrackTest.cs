@@ -2,6 +2,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
 using System.Text;
 using ZoDream.Shared;
+using ZoDream.Shared.CSharp;
+using ZoDream.Shared.Models;
 
 namespace ZoDream.Tests
 {
@@ -12,7 +14,7 @@ namespace ZoDream.Tests
         public void TestUnpack()
         {
             var cracker = new Cracker();
-            var keys = new ZoDream.Shared.Crack.KeyItem("27e208d7", "d91e8bd7", "10ae5016");
+            var keys = new KeyItem("27e208d7", "d91e8bd7", "10ae5016");
             var res = cracker.Unpack(keys, "c.zip", "p.zip", "saveFolder");
             Assert.IsTrue(res);
         }

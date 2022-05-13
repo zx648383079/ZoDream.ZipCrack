@@ -28,7 +28,7 @@ extern "C" {
 
     _declspec(dllexport) bool __stdcall Pack2(KeyStruct keys, const char* zipFile, const char* distFile, const char* password, ProgressCallBack callback);
 
-    _declspec(dllexport) bool __stdcall Recover(KeyStruct keys, size_t length, const char* rule, char* password, ProgressCallBack callback);
+    _declspec(dllexport) int __stdcall Recover(KeyStruct keys, size_t length, const char* rule, char* password, ProgressCallBack callback);
 
     _declspec(dllexport) bool __stdcall Unpack(KeyStruct keys, const char* cipherFile, const char* distFolder, ProgressCallBack callback);
 

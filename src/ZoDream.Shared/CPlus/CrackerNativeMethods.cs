@@ -39,15 +39,15 @@ namespace ZoDream.Shared.CPlus
         public static extern bool Pack(KeyStruct keys, string cipherFile, string distFile, string password, CallBackHandler callback);
 
         [DllImport("cracker.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool Recover(KeyStruct keys, int length, string rule, [MarshalAs(UnmanagedType.LPStr)] StringBuilder password, CallBackHandler callback);
+        public static extern int Recover(KeyStruct keys, int length, string rule, [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder password, CallBackHandler callback);
 
         [DllImport("cracker.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool Unpack(KeyStruct keys, string cipherFile, string distFolder, CallBackHandler callback);
 
-        [DllImport("cracker.dll", EntryPoint = "Unpack2", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("cracker.dll", EntryPoint = "Unpack3", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool Unpack(KeyStruct keys, string cipherFile, string cipherFileName, string distFolder, CallBackHandler callback);
 
-        [DllImport("cracker.dll", EntryPoint = "Unpack3", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("cracker.dll", EntryPoint = "Unpack2", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool Unpack(KeyStruct keys, string cipherFile, long cipherBegin, long cipherEnd, string distFile, CallBackHandler callback);
     }
 }

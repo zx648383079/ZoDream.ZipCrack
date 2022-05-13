@@ -9,13 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZoDream.Shared", "ZoDream.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZoDream.Tests", "ZoDream.Tests\ZoDream.Tests.csproj", "{1C125138-47C0-4D97-BB39-2E8032DABAFF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ICSharpCode.SharpZipLib", "ICSharpCode.SharpZipLib\ICSharpCode.SharpZipLib.csproj", "{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dll", "Dll", "{C4E6CD2A-EA4D-4C56-9EBA-BD71FD9DAA06}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cracker", "Dll\cracker\cracker.vcxproj", "{D8CE04F2-8DE6-45AD-94F0-323410A141F1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrackerExe", "Dll\CrackerExe\CrackerExe.vcxproj", "{E5A93AFC-BAA8-4546-A8E9-F21868CA59E2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ICSharpCode.SharpZipLib", "..\SharpZipLib\src\ICSharpCode.SharpZipLib\ICSharpCode.SharpZipLib.csproj", "{E57192DC-28A0-492F-ADC6-3DE8A37781D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,18 +63,6 @@ Global
 		{1C125138-47C0-4D97-BB39-2E8032DABAFF}.Release|x64.Build.0 = Release|Any CPU
 		{1C125138-47C0-4D97-BB39-2E8032DABAFF}.Release|x86.ActiveCfg = Release|Any CPU
 		{1C125138-47C0-4D97-BB39-2E8032DABAFF}.Release|x86.Build.0 = Release|Any CPU
-		{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}.Debug|x64.Build.0 = Debug|Any CPU
-		{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}.Debug|x86.Build.0 = Debug|Any CPU
-		{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}.Release|x64.ActiveCfg = Release|Any CPU
-		{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}.Release|x64.Build.0 = Release|Any CPU
-		{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}.Release|x86.ActiveCfg = Release|Any CPU
-		{8A5E55C3-B7B7-49DF-B71E-F4940C1B994F}.Release|x86.Build.0 = Release|Any CPU
 		{D8CE04F2-8DE6-45AD-94F0-323410A141F1}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{D8CE04F2-8DE6-45AD-94F0-323410A141F1}.Debug|x64.ActiveCfg = Debug|x64
 		{D8CE04F2-8DE6-45AD-94F0-323410A141F1}.Debug|x64.Build.0 = Debug|x64
@@ -97,6 +85,18 @@ Global
 		{E5A93AFC-BAA8-4546-A8E9-F21868CA59E2}.Release|x64.Build.0 = Release|x64
 		{E5A93AFC-BAA8-4546-A8E9-F21868CA59E2}.Release|x86.ActiveCfg = Release|Win32
 		{E5A93AFC-BAA8-4546-A8E9-F21868CA59E2}.Release|x86.Build.0 = Release|Win32
+		{E57192DC-28A0-492F-ADC6-3DE8A37781D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E57192DC-28A0-492F-ADC6-3DE8A37781D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E57192DC-28A0-492F-ADC6-3DE8A37781D4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E57192DC-28A0-492F-ADC6-3DE8A37781D4}.Debug|x64.Build.0 = Debug|Any CPU
+		{E57192DC-28A0-492F-ADC6-3DE8A37781D4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E57192DC-28A0-492F-ADC6-3DE8A37781D4}.Debug|x86.Build.0 = Debug|Any CPU
+		{E57192DC-28A0-492F-ADC6-3DE8A37781D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E57192DC-28A0-492F-ADC6-3DE8A37781D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E57192DC-28A0-492F-ADC6-3DE8A37781D4}.Release|x64.ActiveCfg = Release|Any CPU
+		{E57192DC-28A0-492F-ADC6-3DE8A37781D4}.Release|x64.Build.0 = Release|Any CPU
+		{E57192DC-28A0-492F-ADC6-3DE8A37781D4}.Release|x86.ActiveCfg = Release|Any CPU
+		{E57192DC-28A0-492F-ADC6-3DE8A37781D4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

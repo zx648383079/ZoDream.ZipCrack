@@ -144,6 +144,15 @@
   <data name="cvtBtnContent" xml:space="preserve">
     <value>Convert</value>
   </data>
+  <data name="decodeBtnContent" xml:space="preserve">
+    <value>Decode File</value>
+  </data>
+  <data name="decodeFile" xml:space="preserve">
+    <value>Decode Deflated File</value>
+  </data>
+  <data name="DecodeLabelText" xml:space="preserve">
+    <value>Deflated File</value>
+  </data>
   <data name="encodingLabelText" xml:space="preserve">
     <value>Encoding</value>
   </data>
@@ -239,6 +248,12 @@
   </data>
   <data name="unzipSuccess" xml:space="preserve">
     <value>Unzip Success</value>
+  </data>
+  <data name="useCPlus" xml:space="preserve">
+    <value>Use Native</value>
+  </data>
+  <data name="useCPlusTip" xml:space="preserve">
+    <value>Enable native functions, based on C++, with higher performance</value>
   </data>
   <data name="zipName" xml:space="preserve">
     <value>Zip</value>

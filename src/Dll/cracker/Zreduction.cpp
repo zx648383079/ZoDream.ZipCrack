@@ -87,6 +87,9 @@ void Zreduction::reduce(Logger& logger)
         std::swap(zi_vector, zim1_10_32_vector);
 
         logger.Progress(++progress, total);
+        if (logger.IsCancellationRequested) {
+            return;
+        }
     }
 
     if(tracking)

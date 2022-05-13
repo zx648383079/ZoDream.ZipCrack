@@ -67,6 +67,9 @@ std::vector<Keys> Cracker::FindKey(bytevec cipherData, bytevec plainData)
 		logger.Info("Z reduction using %d bytes of known plaintext", data.keystream.size() - Attack::CONTIGUOUS_SIZE);
 		zr.reduce(logger);
 	}
+	if (logger.IsCancellationRequested) {
+		return std::vector<Keys>();
+	}
     // generate Zi[2,32) values
     zr.generate();
 
@@ -78,15 +81,27 @@ std::vector<Keys> Cracker::FindKey(bytevec cipherData, bytevec plainData)
 bool Cracker::Unpack(const Keys& keys, const std::string& cipherFile, const std::string& distFolder)
 {
 	std::ifstream cipherStream = openInput(cipherFile);
-	for (ZipIterator iter = locateZipEntries(cipherStream); iter != ZipIterator(); iter++)
+	std::vector<ZipEntry> items;
+	std::for_each(locateZipEntries(cipherStream), ZipIterator(),
+		[&items](const ZipEntry& e)
+		{
+			if (e.encryption == ZipEntry::Encryption::Traditional) {
+				items.push_back(e);
+			}
+		});
+	for (const ZipEntry& e: items)
 	{
 		if (logger.IsCancellationRequested) {
 			continue;
 		}
-		ZipEntry e = *iter;
-		logger.Info(e.name.c_str());
-		std::ofstream distStream = openOutput(distFolder + e.name);
-		decipher(cipherStream, e.size, e.offset, distStream, keys);
+		logger.Info("unpack: %s", e.name.c_str());
+		std::ofstream distStream = openOutput(distFolder + "/" + e.name);
+		openZipEntry(cipherStream, e);
+	/*	auto p = cipherStream.tellg();
+		logger.Info("%d", (std::size_t)p);*/
+		Keys decrypt = keys;
+		decipher(cipherStream, e.size, Data::ENCRYPTION_HEADER_SIZE, 
+			distStream, decrypt, logger);
 	}
 	return true;
 }
@@ -95,7 +110,8 @@ bool Cracker::Unpack(const Keys& keys, const std::string& cipherFile, long ciphe
 	std::ofstream distStream = openOutput(distFile);
 	std::ifstream cipherStream = openInput(cipherFile);
 	cipherStream.seekg(cipherBegin, std::ios::beg);
-	decipher(cipherStream, cipherEnd  - cipherBegin, Data::ENCRYPTION_HEADER_SIZE, distStream, keys);
+	decipher(cipherStream, cipherEnd  - cipherBegin, Data::ENCRYPTION_HEADER_SIZE, 
+		distStream, keys, logger);
 	return true;
 }
 bool Cracker::Unpack(const Keys& keys, const std::string& cipherFile, const std::string& cipherFileName, const std::string& distFile)
@@ -103,7 +119,7 @@ bool Cracker::Unpack(const Keys& keys, const std::string& cipherFile, const std:
 	std::size_t ciphersize = (std::numeric_limits<std::size_t>::max)();
 	std::ofstream distStream = openOutput(distFile);
 	std::ifstream cipherStream = openZipEntry(cipherFile, cipherFileName, ZipEntry::Encryption::Traditional, ciphersize);
-	decipher(cipherStream, ciphersize, Data::ENCRYPTION_HEADER_SIZE, distStream, keys);
+	decipher(cipherStream, ciphersize, Data::ENCRYPTION_HEADER_SIZE, distStream, keys, logger);
 	return true;
 }
 bool Cracker::Pack(const Keys& keys, const std::string& cipherFile, const std::string& distFile)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -106,8 +107,8 @@ namespace ZoDream.Shared.CPlus
             {
                 var ruler = new CSharp.PasswordRule(rule);
                 var sb = new StringBuilder();
-                var res = CrackerNativeMethods.Recover(ParseKey(keys), ruler.Length, rule, sb, Callback);
-                return res ? sb.ToString() : string.Empty;
+                var len = CrackerNativeMethods.Recover(ParseKey(keys), ruler.Length, rule, sb, Callback);
+                return len > 0 ? sb.ToString().Substring(0, len) : string.Empty;
             }, StartNew());
         }
 
@@ -128,7 +129,8 @@ namespace ZoDream.Shared.CPlus
         {
             return Task.Factory.StartNew(() =>
             {
-                return CrackerNativeMethods.Unpack(ParseKey(keys), cipherFile, cipherFileName, distFolder, Callback);
+                var distFile = Path.Combine(distFolder, cipherFileName);
+                return CrackerNativeMethods.Unpack(ParseKey(keys), cipherFile, cipherFileName, distFile, Callback);
             }, StartNew());
         }
 

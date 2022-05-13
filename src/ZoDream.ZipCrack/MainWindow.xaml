@@ -33,6 +33,7 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{ll:LocalizedLang encodingLabelText}" Style="{StaticResource LableTb}"/>
             <ComboBox x:Name="EncodingTb" VerticalContentAlignment="Center" IsEditable="True" 
@@ -45,7 +46,12 @@
                 <ComboBoxItem Content="{ll:LocalizedLang unzip}"/>
                 <ComboBoxItem Content="{ll:LocalizedLang converterZip}"/>
                 <ComboBoxItem Content="{ll:LocalizedLang recover}"/>
+                <ComboBoxItem Content="{ll:LocalizedLang decodeFile}"/>
             </ComboBox>
+            <CheckBox x:Name="UseTb" Grid.Column="4" 
+                      VerticalAlignment="Center"
+                      IsChecked="True" Content="{ll:LocalizedLang useCPlus}"
+                      ToolTip="{ll:LocalizedLang useCPlusTip}"/>
         </Grid>
         <Grid x:Name="SourcePanel" Grid.Row="1" Height="30">
             <Grid.ColumnDefinitions>
@@ -108,13 +114,21 @@
             <TextBlock Text="{ll:LocalizedLang pwdNewLabel}" Style="{StaticResource LableTb}"/>
             <TextBox x:Name="PwdNewTb" Grid.Column="1" MaxLines="1"/>
         </Grid>
-        <Grid Grid.Row="3">
+        <Grid x:Name="KeyPanel" Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{ll:LocalizedLang keyLabelText}" Style="{StaticResource LableTb}" ToolTip="Keys obtained through plaintext attacks "/>
             <ctl:KeyInput x:Name="KeyTb" TextChanged="KeyTb_TextChanged" Grid.Column="1"/>
+        </Grid>
+        <Grid x:Name="DecodeFilePanel" Grid.Row="3" Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{ll:LocalizedLang DecodeLabelText}" Style="{StaticResource LableTb}"/>
+            <ctl:FileInput x:Name="DecodeTb" Grid.Column="1" FileChanged="DecodeTb_FileChanged"/>
         </Grid>
 
         <ctl:ConsoleContainer x:Name="infoTb" Grid.Row="4"/>
@@ -157,6 +171,16 @@
             </Grid.ColumnDefinitions>
             <Button x:Name="RecoverBtn" Content="{ll:LocalizedLang recoverBtnContent}" 
                     IsEnabled="False" Click="RecoverBtn_Click"/>
+            <Button Content="{ll:LocalizedLang clearBtnText}" Click="ClearBtn_Click" Grid.Column="1"/>
+        </Grid>
+        <Grid x:Name="DecodeActionPanel" Grid.Row="6" Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="DecodeBtn" Content="{ll:LocalizedLang decodeBtnContent}" 
+                    IsEnabled="False"
+                    Click="DecodeBtn_Click"/>
             <Button Content="{ll:LocalizedLang clearBtnText}" Click="ClearBtn_Click" Grid.Column="1"/>
         </Grid>
         <Button x:Name="StopBtn" Click="StopBtn_Click" 

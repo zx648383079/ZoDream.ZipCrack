@@ -256,6 +256,7 @@ std::istream& openZipEntry(std::istream& is, const ZipEntry& entry)
     return is;
 }
 
+
 std::ifstream openZipEntry(const std::string& archive, const std::string& entry, ZipEntry::Encryption expected, std::size_t& size)
 {
     std::ifstream is = openInput(archive);
@@ -365,13 +366,16 @@ void changeKeys(std::istream& is, std::ostream& os, const Keys& oldKeys, const K
     std::copy(std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(os));
 }
 
-void decipher(std::istream& is, std::size_t size, std::size_t discard, std::ostream& os, Keys keys)
+void decipher(std::istream& is, std::size_t size, 
+    std::size_t discard, std::ostream& os, Keys keys, Logger& logger)
 {
     std::istreambuf_iterator<char> cipher(is);
     std::size_t i;
 
-    for(i = 0; i < discard && i < size && cipher != std::istreambuf_iterator<char>(); i++, ++cipher)
-       keys.update(*cipher ^ keys.getK());
+    for (i = 0; i < discard && i < size && cipher != std::istreambuf_iterator<char>(); i++, ++cipher)
+    {
+        keys.update(*cipher ^ keys.getK());
+    }
 
     for(std::ostreambuf_iterator<char> plain(os); i < size && cipher != std::istreambuf_iterator<char>(); i++, ++cipher, ++plain)
     {
@@ -380,3 +384,4 @@ void decipher(std::istream& is, std::size_t size, std::size_t discard, std::ostr
         *plain = p;
     }
 }
+

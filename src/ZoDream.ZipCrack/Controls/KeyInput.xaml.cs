@@ -45,7 +45,7 @@ namespace ZoDream.ZipCrack.Controls
         {
             get {
                 var data = KeyArray;
-                if (data.Length >= 3)
+                if (data.Length < 3)
                 {
                     return new KeyItem();
                 }

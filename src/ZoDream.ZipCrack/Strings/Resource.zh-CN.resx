@@ -144,6 +144,15 @@
   <data name="cvtBtnContent" xml:space="preserve">
     <value>转换</value>
   </data>
+  <data name="decodeBtnContent" xml:space="preserve">
+    <value>解码文件</value>
+  </data>
+  <data name="decodeFile" xml:space="preserve">
+    <value>解码Deflated文件</value>
+  </data>
+  <data name="DecodeLabelText" xml:space="preserve">
+    <value>Deflated文件</value>
+  </data>
   <data name="encodingLabelText" xml:space="preserve">
     <value>编码</value>
   </data>
@@ -245,6 +254,12 @@
   </data>
   <data name="unzipSuccess" xml:space="preserve">
     <value>解压成功</value>
+  </data>
+  <data name="useCPlus" xml:space="preserve">
+    <value>使用原生功能</value>
+  </data>
+  <data name="useCPlusTip" xml:space="preserve">
+    <value>开启原生功能，基于C++，性能更高</value>
   </data>
   <data name="zipName" xml:space="preserve">
     <value>ZIP文件</value>

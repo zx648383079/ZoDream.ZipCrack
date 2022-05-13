@@ -163,7 +163,7 @@ void Attack::testXlist()
     #pragma omp critical
     solutions.push_back(keysBackward);
 
-    logger.Info("%d %d %d", keysBackward.getX(), keysBackward.getY(), keysBackward.getZ());
+    logger.Info("Keys: %x %x %x", keysBackward.getX(), keysBackward.getY(), keysBackward.getZ());
 }
 
 std::vector<Keys> attack(const Data& data, const u32vec& zi_2_32_vector, std::size_t index, const bool exhaustive, Logger& logger)
@@ -181,10 +181,8 @@ std::vector<Keys> attack(const Data& data, const u32vec& zi_2_32_vector, std::si
     {
         if(logger.IsCancellationRequested)
             continue; // cannot break out of an OpenMP for loop
-
         worker.carryout(candidates[i]);
-
-        logger.Progress(i+1, size);
+        logger.Progress(i + 1, size);
     }
 
     return solutions;

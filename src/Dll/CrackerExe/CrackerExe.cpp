@@ -10,7 +10,7 @@
 #include "log.hpp"
 
 
-const char* usage = R"_(usage: bkcrack [options]
+const char* usage = R"_(usage: CrackerExe [options]
 Crack legacy zip encryption with Biham and Kocher's known plaintext attack.
 
 Mandatory:
@@ -111,10 +111,10 @@ int main(int argc, char const* argv[])
         if (args.maxLength)
         {
             char* password{};
-            bool res = Recover(args.keys,
+            int len = Recover(args.keys,
                 args.maxLength, args.charset.c_str(),
                 password, callback);
-            if (res) {
+            if (len > 0) {
                 std::cout << "[" << put_time << "] Password" << std::endl;
                 std::cout << "as text: " << password << std::endl;
             }
@@ -127,7 +127,7 @@ int main(int argc, char const* argv[])
     catch (const Arguments::Error& e)
     {
         std::cout << e.what() << std::endl;
-        std::cout << "Run 'bkcrack -h' for help." << std::endl;
+        std::cout << "Run 'CrackerExe -h' for help." << std::endl;
         return 1;
     }
     catch (const BaseError& e)

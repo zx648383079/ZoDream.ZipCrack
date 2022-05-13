@@ -1,6 +1,4 @@
 ﻿using ICSharpCode.SharpZipLib.Zip;
-using ICSharpCode.SharpZipLib.Zip.Compression;
-using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using System;
 using System.IO;
 using System.Text;
@@ -110,11 +108,13 @@ namespace ZoDream.Shared.CSharp
         {
             if (data.PlainText.Count < Attack.SIZE)
             {
+                Logger?.Warning("Plain Text too short");
                 // 太小了
                 return null;
             }
             if (data.PlainText.Count > data.CipherText.Count)
             {
+                Logger?.Warning("Plain Text too long");
                 // 不能小于
                 return null;
             }
@@ -251,7 +251,7 @@ namespace ZoDream.Shared.CSharp
             {
                 Directory.CreateDirectory(Path.Combine(distFolder, directoryName));
             }
-            Logger?.Info($"开始解压：{entry.Name}");
+            Logger?.Info($"unpack: {entry.Name}");
             var distFile = Path.Combine(distFolder, entry.Name);
             using (var fs = File.Create(distFile))
             {
@@ -314,7 +314,7 @@ namespace ZoDream.Shared.CSharp
             for (var i = begin; i < end; i++)
             {
                 var b = (char)cipherStream.ReadByte();
-                var p = (byte)(b ^ KeystreamTab.GetByte(keys.Z));
+                var p = (byte)(b ^ KeystreamTab.GetByte(key.Z));
                 key.Update(p);
                 if (i < offset)
                 {
@@ -343,8 +343,8 @@ namespace ZoDream.Shared.CSharp
             var offset = begin + CrackData.ENCRYPTION_HEADER_SIZE;
             for (var i = begin; i < end; i++)
             {
-                var b = (char)cipherStream.ReadByte();
-                var p = (byte)(b ^ KeystreamTab.GetByte(keys.Z));
+                var b = (byte)cipherStream.ReadByte();
+                var p = (byte)(b ^ KeystreamTab.GetByte(key.Z));
                 key.Update(p);
                 if (i < offset)
                 {
@@ -357,22 +357,7 @@ namespace ZoDream.Shared.CSharp
             var res = true;
             try
             {
-                var inflater = new InflaterInputStream(tempFs, new Inflater(true), 4096);
-                int size;
-                var data = new byte[2048];
-                while (true)
-                {
-                    size = inflater.Read(data, 0, data.Length);
-                    if (size > 0)
-                    {
-                        distStream.Write(data, 0, size);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                inflater.Close();
+                Zip.DecodeDeflatedFile(tempFs, distStream);
             }
             catch (Exception ex)
             {
@@ -392,26 +377,18 @@ namespace ZoDream.Shared.CSharp
         /// <returns></returns>
         public bool Unpack(string file, string distFile)
         {
-            var tempFs = File.OpenRead(file);
-            var distStream = File.OpenWrite(distFile);
-            var inflater = new InflaterInputStream(tempFs, new Inflater(true), 4096);
-            int size;
-            var data = new byte[2048];
-            while (true)
+            var res = true;
+            try
             {
-                size = inflater.Read(data, 0, data.Length);
-                if (size > 0)
-                {
-                    distStream.Write(data, 0, size);
-                }
-                else
-                {
-                    break;
-                }
+                Zip.DecodeDeflatedFile(file, distFile);
             }
-            inflater.Close();
-            tempFs.Close();
-            return true;
+            catch (Exception ex)
+            {
+                res = false;
+                File.Delete(distFile);
+                Logger?.Error(ex.Message);
+            }
+            return res;
         }
 
         private CancellationToken StartNew()

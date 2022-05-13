@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace ZoDream.ZipCrack
             DataContext = ViewModel;
         }
 
-        public MainViewModel ViewModel = new MainViewModel();
+        public MainViewModel ViewModel = new();
         private ICracker? crackerTask;
 
         public bool IsLoading
@@ -40,7 +41,15 @@ namespace ZoDream.ZipCrack
             set
             {
                 ApplyVisible(value, progressBar, StopBtn);
-                ApplyVisible(!value, GetActionPanel, UnzipActionPanel, PwdActionPanel, ConverterActionPanel);
+                if (value)
+                {
+                    ApplyVisible(!value, GetActionPanel, UnzipActionPanel, 
+                        PwdActionPanel, ConverterActionPanel, DecodeActionPanel);
+                } else
+                {
+                    ModeTb_SelectionChanged(null, null);
+                }
+                
             }
         }
 
@@ -69,10 +78,17 @@ namespace ZoDream.ZipCrack
 
         private void cipherFileTb_FileChanged(object sender, string fileName)
         {
-            KeyTb.Text = string.Empty;
+            if (ModeTb.SelectedIndex < 3)
+            {
+                KeyTb.Text = string.Empty;
+            }
             Zip.CodePage = EncodingTb.Text.Trim();
             ViewModel.Loadcipher(fileName);
             cipherNameTb.Text = "";
+            if (ModeTb.SelectedIndex == 3)
+            {
+                UnzipFilesBtn.IsEnabled = KeyTb.IsCompleted;
+            }
         }
 
         private void plainFileTb_FileChanged(object sender, string fileName)
@@ -181,9 +197,9 @@ namespace ZoDream.ZipCrack
             crackerTask?.Stop();
         }
 
-        private void ModeTb_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ModeTb_SelectionChanged(object? sender, SelectionChangedEventArgs? e)
         {
-            var i = (sender as ComboBox)!.SelectedIndex;
+            var i = ModeTb.SelectedIndex;
             ApplyVisible(SourcePanel, i < 5);
             ApplyVisible(DistPanel, i < 1);
             ApplyVisible(DistFilePanel, i == 1);
@@ -194,6 +210,9 @@ namespace ZoDream.ZipCrack
             ApplyVisible(ConverterActionPanel, i == 4);
             ApplyVisible(PwdActionPanel, i == 5);
             ApplyVisible(CvtPanel, i == 4);
+            ApplyVisible(DecodeActionPanel, i == 6);
+            ApplyVisible(DecodeFilePanel, i == 6);
+            ApplyVisible(KeyPanel, i < 6);
 
         }
 
@@ -247,7 +266,7 @@ namespace ZoDream.ZipCrack
                 UnzipFilesBtn.IsEnabled = UnzipFileBtn.IsEnabled = false;
                 return;
             }
-            UnzipFileBtn.IsEnabled = !string.IsNullOrWhiteSpace(cipherNameTb.Text);
+            UnzipFileBtn.IsEnabled = !string.IsNullOrWhiteSpace(cipherNameTb.Text) || cipherNameTb.SelectedIndex >= 0;
             UnzipFilesBtn.IsEnabled = true;
         }
 
@@ -324,11 +343,11 @@ namespace ZoDream.ZipCrack
             bool res;
             if (justFile)
             {
-                res = await crackerTask.UnpackAsync(KeyTb.Keys, cipherFileTb.FileName, cipherNameTb.Text.Trim(), folder.SelectedPath);
+                res = await crackerTask.UnpackAsync(KeyTb.Keys!, cipherFileTb.FileName, cipherNameTb.Text.Trim(), folder.SelectedPath!);
             }
             else
             {
-                res = await crackerTask.UnpackAsync(KeyTb.Keys, cipherFileTb.FileName, folder.SelectedPath);
+                res = await crackerTask.UnpackAsync(KeyTb.Keys!, cipherFileTb.FileName, folder.SelectedPath!);
             }
             MessageBox.Show(LocalizedLangExtension.GetString(res ? "unzipSuccess" : "unzipError"));
             IsLoading = false;
@@ -407,8 +426,40 @@ namespace ZoDream.ZipCrack
                 });
                 isLastProgress = true;
             };
-            return new Shared.CPlus.Cracker(logger);
+            if (UseTb.IsChecked == true)
+            {
+                return new Shared.CPlus.Cracker(logger);
+            }
+            return new Shared.CSharp.Cracker(logger);
         }
 
+        private void DecodeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var picker = new Microsoft.Win32.SaveFileDialog()
+            {
+                FileName = System.IO.Path.GetFileName(DecodeTb.FileName)
+            };
+            if (picker.ShowDialog() != true)
+            {
+                return;
+            }
+            var outputFile = picker.FileName;
+            try
+            {
+                Zip.DecodeDeflatedFile(DecodeTb.FileName, outputFile);
+                MessageBox.Show(LocalizedLangExtension.GetString("converterSuccess"));
+            }
+            catch (Exception ex)
+            {
+                infoTb.AppendLine(ex.Message);
+                MessageBox.Show(LocalizedLangExtension.GetString("converterError"));
+                File.Delete(outputFile);
+            }
+        }
+
+        private void DecodeTb_FileChanged(object sender, string fileName)
+        {
+            DecodeBtn.IsEnabled = !string.IsNullOrWhiteSpace(fileName);
+        }
     }
 }

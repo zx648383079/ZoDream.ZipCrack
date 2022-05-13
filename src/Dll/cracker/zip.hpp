@@ -162,6 +162,7 @@ void changeKeys(std::istream& is, std::ostream& os, const Keys& oldKeys, const K
 
 /// Decipher at most \a size bytes from \a is into \a os with the given keys.
 /// The first \a discard bytes are discarded.
-void decipher(std::istream& is, std::size_t size, std::size_t discard, std::ostream& os, Keys keys);
+void decipher(std::istream& is, std::size_t size, std::size_t discard, std::ostream& os, Keys keys, Logger& logger);
+
 
 #endif // BKCRACK_ZIP_HPP

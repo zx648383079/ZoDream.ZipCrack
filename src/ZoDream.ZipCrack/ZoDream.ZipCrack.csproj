@@ -3,24 +3,18 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
-	  <LangVersion>9.0</LangVersion>
+	  <LangVersion>10</LangVersion>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
 	 <UseWindowsForms>true</UseWindowsForms>
-	 <AssemblyVersion>1.0</AssemblyVersion>
-	 <FileVersion>1.0</FileVersion>
-	 <Copyright>Copyright © 2021 zodream.cn</Copyright>
+	 <Version>1.1</Version>
+	 <Copyright>Copyright © 2022 zodream.cn</Copyright>
 	 <Company>zodream.cn</Company>
 	 <Authors>zodream</Authors>
 	 <ApplicationIcon>cracker.ico</ApplicationIcon>
 	 <Product>Zip Cracker</Product>
 	 <Description>基于明文的ZIP密码攻击</Description>
-	 <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="cracker.ico" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="cracker.ico" />
@@ -33,5 +27,10 @@
   <ItemGroup>
     <ProjectReference Include="..\ZoDream.Shared\ZoDream.Shared.csproj" />
   </ItemGroup>
+	<ItemGroup>
+		<None Include="..\x64\Debug\cracker.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

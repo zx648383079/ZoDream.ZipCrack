@@ -1,4 +1,6 @@
 ﻿using ICSharpCode.SharpZipLib.Zip;
+using ICSharpCode.SharpZipLib.Zip.Compression;
+using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -112,6 +114,37 @@ namespace ZoDream.Shared.CSharp
                 return "gb2312";
             }
             return "utf-8";
+        }
+
+        public static void DecodeDeflatedFile(Stream inputStream, Stream outputStream)
+        {
+            var inflater = new InflaterInputStream(inputStream, new Inflater(true));
+            int size;
+            var data = new byte[4096];
+            while (true)
+            {
+                size = inflater.Read(data, 0, data.Length);
+                if (size > 0)
+                {
+                    outputStream.Write(data, 0, size);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            inflater.Close();
+        }
+
+        public static void DecodeDeflatedFile(string inputFile, string outputFile)
+        {
+            if (inputFile == outputFile)
+            {
+                throw new ArgumentException("Input file cannot be equal to output file");
+            }
+            using var inputFs = File.OpenRead(inputFile);
+            using var outputFs = File.OpenWrite(outputFile);
+            DecodeDeflatedFile(inputFs, outputFs);
         }
     }
 }

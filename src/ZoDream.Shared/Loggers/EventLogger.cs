@@ -62,7 +62,6 @@ namespace ZoDream.Shared.Loggers
             isLoading = true;
             Task.Factory.StartNew(() =>
             {
-
                 OnProgress?.Invoke(current, total);
                 isLoading = false;
             });
