@@ -13,10 +13,13 @@ namespace ZoDream.Tests
     public class DllTest
     {
 
-        [TestMethod]
+        // [TestMethod]
         public void TestFinKey()
         {
-            var res = CrackerNativeMethods.FindKey("c.zip", "c.txt", "plain.zip", "plain.txt");
+            var res = CrackerNativeMethods.FindKey("c.zip", "c.txt", "plain.zip", "plain.txt", (p,t,m) =>
+            {
+                return true;
+            });
             Assert.AreEqual(res.x, (uint)0x27e208d7);
         }
     }

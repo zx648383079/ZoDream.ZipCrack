@@ -8,23 +8,34 @@ namespace ZoDream.Shared.CSharp
 {
     public class PasswordRecovery
     {
-        uint[] x = new uint[7];
-        uint[] y = new uint[7];
-        uint[] z = new uint[7];
-
-        byte[] p = new byte[6];
-
-        bool[] zm1_24_32 = new bool[1 << 8];
-        bool[] z0_16_32 = new bool[1 << 16];
+        readonly uint[] x = new uint[7];
+        readonly uint[] y = new uint[7];
+        readonly uint[] z = new uint[7];
+        readonly byte[] p = new byte[6];
+        readonly bool[] zm1_24_32 = new bool[1 << 8];
+        readonly bool[] z0_16_32 = new bool[1 << 16];
         uint x0;
 
         readonly IList<byte> Charset;
-        public bool ShouldStop { get; set; } = false;
-        public string Password { get; set; }
+        public ILogger? Logger { get; set; }
+        public bool ShouldStop { get; set; }
 
-        public PasswordRecovery(Keys keys, IList<byte> charset)
+        public StringBuilder Password { get; set; } = new();
+
+        public PasswordRecovery(Keys keys, IList<byte> charset, ILogger? logger)
         {
+            Logger = logger;
             Charset = charset;
+
+            // 初始化
+            for (int i = 0; i < 7; i++)
+            {
+                x[i] = y[i] = z[i] = 0xcccccccc;
+                if (i < 6)
+                {
+                    p[i] = 0xcc;
+                }
+            }
             // initialize target X, Y and Z values
             x[6] = keys.X;
             y[6] = keys.Y;
@@ -89,12 +100,12 @@ namespace ZoDream.Shared.CSharp
 
                 foreach (var pi in Charset)
                 {
-                    Keys init = initial;
+                    var init = new Keys(initial);
                     init.Update(pi);
 
                     if (Recover(init))
                     {
-                        Password = Password.Insert(0, Encoding.UTF8.GetString(new byte[] { pi }));
+                        Password = Password.Insert(0, (char)pi);
                         return true;
                     }
                 }
@@ -108,12 +119,12 @@ namespace ZoDream.Shared.CSharp
 
                 foreach (var pi in Charset)
                 {
-                    var init = initial;
+                    var init = new Keys(initial);
                     init.Update(pi);
 
                     if (RecoverLongPassword(init, length - 1))
                     {
-                        Password = Password.Insert(0, Encoding.UTF8.GetString(new byte[] { pi }));
+                        Password = Password.Insert(0, (char)pi);
                         return true;
                     }
                 }
@@ -197,7 +208,11 @@ namespace ZoDream.Shared.CSharp
 
                 if (x[0] == x0) // the password is successfully recovered
                 {
-                    Password = Encoding.UTF8.GetString(p);
+                    Password.Clear();
+                    foreach (var item in p)
+                    {
+                        Password.Append((char)item);
+                    }
                     ShouldStop = true;
                     return true;
                 }
@@ -209,14 +224,14 @@ namespace ZoDream.Shared.CSharp
         public static string Recover(Keys keys, int maxLength, IList<byte> charset, 
             ILogger? logger, CancellationToken cancelToken = default)
         {
-            var worker = new PasswordRecovery(keys, charset);
-            string password = string.Empty;
+            var worker = new PasswordRecovery(keys, charset, logger);
+            StringBuilder password = new();
 
             // look for a password of length between 0 and 6
             logger?.Info("length 0-6...");
             if (worker.RecoverShortPassword())
             {
-                return worker.Password;
+                return worker.Password.ToString();
             }
 
             // look for a password of length between 7 and 9
@@ -230,7 +245,7 @@ namespace ZoDream.Shared.CSharp
                 logger?.Info($"length {length}...");
                 if (worker.RecoverLongPassword(new Keys(), length))
                 {
-                    return worker.Password;
+                    return worker.Password.ToString();
                 }
             }
 
@@ -271,8 +286,9 @@ namespace ZoDream.Shared.CSharp
                     if (worker.RecoverLongPassword(init, length - 2))
                     {
                         password = worker.Password;
-                        password = password.Insert(0, Encoding.UTF8.GetString(new byte[] { charset[i % charsetSize] }));
-                        password = password.Insert(0, Encoding.UTF8.GetString(new byte[] { charset[i / charsetSize] }));
+                        password.Insert(0, (char)charset[i % charsetSize]);
+                        password.Insert(0, (char)charset[i / charsetSize]);
+                        return password.ToString();
                     }
 
 #pragma omp critical
@@ -284,7 +300,7 @@ namespace ZoDream.Shared.CSharp
 
                 if (worker.ShouldStop)
                 {
-                    return password;
+                    return password.ToString();
                 }
             }
             return string.Empty;

@@ -245,7 +245,7 @@ namespace ZoDream.Shared.CSharp
                     for (int i = 0; i < count; i++)
                     {
                         var code = GetByte(tag, i);
-                        if (!data.Contains(item.Item1))
+                        if (!data.Contains(code))
                         {
                             data.Add(code);
                         }

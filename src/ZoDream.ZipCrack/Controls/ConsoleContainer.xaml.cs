@@ -30,9 +30,9 @@ namespace ZoDream.ZipCrack.Controls
         public void AppendLine(string line)
         {
             var val = ContentTb.Text;
-            if (val.Length > 1000)
+            if (val.Length > 2000)
             {
-                var i = val.IndexOf('\n', val.Length - 600);
+                var i = val.IndexOf('\n', val.Length - 1600);
                 if (i < 0)
                 {
                     val = "";
@@ -61,6 +61,17 @@ namespace ZoDream.ZipCrack.Controls
         public void Clear()
         {
             ContentTb.Text = string.Empty;
+        }
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            switch ((sender as MenuItem).Name)
+            {
+                case "ClearBtn":
+                    Clear();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

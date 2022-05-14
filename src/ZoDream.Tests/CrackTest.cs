@@ -39,5 +39,13 @@ namespace ZoDream.Tests
             byte b = 90;
             Assert.AreEqual(s.Insert(0, Encoding.UTF8.GetString(new byte[] { b })), "Œ“");
         }
+
+        [TestMethod]
+        public void TestPassword()
+        {
+            var rule = new PasswordRule("?l?d");
+            var charset = rule.Charset;
+            Assert.AreEqual(charset.Count, 36);
+        }
     }
 }

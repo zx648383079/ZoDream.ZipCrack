@@ -37,8 +37,11 @@ Recovery::Recovery(const Keys& keys, const bytevec& charset, Logger& logger)
     y[5] = (y[6] - 1) * MultTab::MULTINV - lsb(x[6]);
 
     // derive more Z bytes
-    for(int i = 6; 1 < i; i--)
-        z[i-1] = Crc32Tab::crc32inv(z[i], msb(y[i]));
+    for (int i = 6; 1 < i; i--)
+    {
+        z[i - 1] = Crc32Tab::crc32inv(z[i], msb(y[i]));
+    }
+    
 
     // precompute possible Z0[16,32) and Z{-1}[24,32)
     for(byte p5 : charset)
@@ -127,8 +130,10 @@ const std::string& Recovery::getPassword() const
 bool Recovery::recover(const Keys& initial)
 {
     // check compatible Z0[16,32)
-    if(!z0_16_32[initial.getZ() >> 16])
+    if (!z0_16_32[initial.getZ() >> 16])
+    {
         return false;
+    }
 
     // initialize starting X, Y and Z values
     x[0] = x0 = initial.getX();
@@ -201,6 +206,7 @@ bool Recovery::recursion(int i)
 
 bool recoverPassword(const Keys& keys, std::size_t max_length, const bytevec& charset, std::string& password, Logger& logger)
 {
+
     Recovery worker(keys, charset, logger);
 
     // look for a password of length between 0 and 6
