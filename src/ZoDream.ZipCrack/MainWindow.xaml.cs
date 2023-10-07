@@ -41,6 +41,9 @@ namespace ZoDream.ZipCrack
 
         public MainViewModel ViewModel => (MainViewModel)DataContext;
 
-
+        private void Window_Unloaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.Stop();
+        }
     }
 }

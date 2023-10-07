@@ -117,7 +117,7 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{ll:LocalizedLang keyLabelText}" Style="{StaticResource LableTb}" ToolTip="{ll:LocalizedLang keyTip}"/>
-            <ctl:KeyInput x:Name="KeyTb" TextChanged="KeyTb_TextChanged" Grid.Column="1"/>
+            <ctl:KeyInput x:Name="KeyTb" Grid.Column="1"/>
         </Grid>
         <Grid Grid.Row="3" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=5}">
             <Grid.ColumnDefinitions>

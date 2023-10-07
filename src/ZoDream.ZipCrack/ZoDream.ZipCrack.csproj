@@ -7,8 +7,8 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
 	 <UseWindowsForms>true</UseWindowsForms>
-	 <Version>1.1</Version>
-	 <Copyright>Copyright © 2022 zodream.cn</Copyright>
+	 <Version>1.2</Version>
+	 <Copyright>Copyright © 2023 zodream.cn</Copyright>
 	 <Company>zodream.cn</Company>
 	 <Authors>zodream</Authors>
 	 <ApplicationIcon>cracker.ico</ApplicationIcon>
