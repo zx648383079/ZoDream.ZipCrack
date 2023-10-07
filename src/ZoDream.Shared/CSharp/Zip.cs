@@ -12,6 +12,9 @@ namespace ZoDream.Shared.CSharp
 {
     public static class Zip
     {
+
+        private static StringCodec Codec = StringCodec.Default;
+        
         public static string CodePage
         {
             set
@@ -19,11 +22,11 @@ namespace ZoDream.Shared.CSharp
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 try
                 {
-                    ZipStrings.CodePage = Encoding.GetEncoding(value).CodePage;
+                    Codec = StringCodec.FromEncoding(Encoding.GetEncoding(value));
                 }
                 catch (Exception)
                 {
-                    ZipStrings.UseUnicode = true;
+                    Codec = StringCodec.Default;
                 }
             }
         }
@@ -38,32 +41,34 @@ namespace ZoDream.Shared.CSharp
             begin = 0;
             end = 0;
             // RegisterEncoding();
-            using (var zipFile = new ZipFile(stream))
+            using var zipFile = new ZipFile(stream)
             {
-                zipFile.IsStreamOwner = false;
-                var item = zipFile.GetEntry(name);
-                if (item == null)
-                {
-                    entry = null;
-                    return false;
-                }
-                begin = zipFile.LocateEntry(item);
-                end = begin + item.CompressedSize;
-                entry = item;
-                return true;
+                StringCodec = Codec
+            };
+            zipFile.IsStreamOwner = false;
+            var item = zipFile.GetEntry(name);
+            if (item == null)
+            {
+                entry = null;
+                return false;
             }
+            begin = zipFile.LocateEntry(item);
+            end = begin + item.CompressedSize;
+            entry = item;
+            return true;
         }
 
         public static bool GetFileDataPosition(FileStream stream, ZipEntry item, out long begin, out long end)
         {
-            using (var zipFile = new ZipFile(stream))
+            using var zipFile = new ZipFile(stream)
             {
-                zipFile.IsStreamOwner = false;
-                item.IsCrypted = false;
-                begin = zipFile.LocateEntry(item);
-                end = begin + item.CompressedSize;
-                return true;
-            }
+                StringCodec = Codec
+            };
+            zipFile.IsStreamOwner = false;
+            item.IsCrypted = false;
+            begin = zipFile.LocateEntry(item);
+            end = begin + item.CompressedSize;
+            return true;
         }
 
 
@@ -84,7 +89,10 @@ namespace ZoDream.Shared.CSharp
         public static IList<ZipEntry> GetEntries(FileStream fs)
         {
             var items = new List<ZipEntry>();
-            using (var stream = new ZipFile(fs))
+            using (var stream = new ZipFile(fs)
+            {
+                StringCodec = Codec
+            })
             {
                 stream.IsStreamOwner = false;
                 foreach (ZipEntry item in stream)
@@ -118,12 +126,12 @@ namespace ZoDream.Shared.CSharp
 
         public static void DecodeDeflatedFile(Stream inputStream, Stream outputStream)
         {
-            var inflater = new InflaterInputStream(inputStream, new Inflater(true));
+            var inflator = new InflaterInputStream(inputStream, new Inflater(true));
             int size;
             var data = new byte[4096];
             while (true)
             {
-                size = inflater.Read(data, 0, data.Length);
+                size = inflator.Read(data, 0, data.Length);
                 if (size > 0)
                 {
                     outputStream.Write(data, 0, size);
@@ -133,7 +141,7 @@ namespace ZoDream.Shared.CSharp
                     break;
                 }
             }
-            inflater.Close();
+            inflator.Close();
         }
 
         public static void DecodeDeflatedFile(string inputFile, string outputFile)

@@ -5,15 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ctl="clr-namespace:ZoDream.ZipCrack.Controls"
         xmlns:ll="clr-namespace:ZoDream.ZipCrack.Utils"
+        xmlns:vm="clr-namespace:ZoDream.ZipCrack.ViewModels"
         mc:Ignorable="d"
-        Loaded="Window_Loaded"
         Unloaded="Window_Unloaded"
         Title="Zip Cracker" Height="450" Width="800" 
         WindowStartupLocation="CenterScreen">
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Skins/MainSkin.xaml"/>
+                <ResourceDictionary Source="Themes/MainSkin.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
@@ -36,24 +39,17 @@
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{ll:LocalizedLang encodingLabelText}" Style="{StaticResource LableTb}"/>
-            <ComboBox x:Name="EncodingTb" VerticalContentAlignment="Center" IsEditable="True" 
-                      Grid.Column="1" ItemsSource="{Binding EncodingItems}"/>
+            <ComboBox VerticalContentAlignment="Center" IsEditable="True" 
+                      Grid.Column="1" ItemsSource="{Binding EncodingItems}" Text="{Binding EncodingText}"/>
             <TextBlock Text="{ll:LocalizedLang modeLabelText}" Grid.Column="2" Style="{StaticResource LableTb}"/>
-            <ComboBox x:Name="ModeTb" Grid.Column="3" SelectedIndex="0" SelectionChanged="ModeTb_SelectionChanged" VerticalContentAlignment="Center">
-                <ComboBoxItem Content="{ll:LocalizedLang getKey}"/>
-                <ComboBoxItem Content="{ll:LocalizedLang getKeyByFile}"/>
-                <ComboBoxItem Content="{ll:LocalizedLang getKeyByText}"/>
-                <ComboBoxItem Content="{ll:LocalizedLang unzip}"/>
-                <ComboBoxItem Content="{ll:LocalizedLang converterZip}"/>
-                <ComboBoxItem Content="{ll:LocalizedLang recover}"/>
-                <ComboBoxItem Content="{ll:LocalizedLang decodeFile}"/>
-            </ComboBox>
-            <CheckBox x:Name="UseTb" Grid.Column="4" 
+            <ComboBox Grid.Column="3" ItemsSource="{Binding ModeItems}" SelectedIndex="{Binding ModeIndex,Mode=TwoWay}"
+                      VerticalContentAlignment="Center"/>
+            <CheckBox Grid.Column="4" 
                       VerticalAlignment="Center"
-                      IsChecked="True" Content="{ll:LocalizedLang useCPlus}"
+                      IsChecked="{Binding UseDll,Mode=TwoWay}" Content="{ll:LocalizedLang useCPlus}"
                       ToolTip="{ll:LocalizedLang useCPlusTip}"/>
         </Grid>
-        <Grid x:Name="SourcePanel" Grid.Row="1" Height="30">
+        <Grid Grid.Row="1" Height="30" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter='0,1,2,3,4'}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
@@ -61,13 +57,13 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{ll:LocalizedLang cipherLabelText}" Style="{StaticResource LableTb}"/>
-            <ctl:FileInput x:Name="cipherFileTb" Grid.Column="1" FileChanged="cipherFileTb_FileChanged"/>
+            <ctl:FileInput Grid.Column="1" FileName="{Binding CipherArchiveFile}"/>
             <TextBlock Text="{ll:LocalizedLang cipherFileLabelText}" Grid.Column="2" Style="{StaticResource LableTb}"/>
-            <ComboBox x:Name="cipherNameTb" ItemsSource="{Binding CipherItems}" 
+            <ComboBox ItemsSource="{Binding CipherItems}" 
                       Grid.Column="3" Style="{StaticResource FileCb}" 
-                      SelectionChanged="cipherNameTb_SelectionChanged"/>
+                      Text="{Binding CipherSelectedName}"/>
         </Grid>
-        <Grid x:Name="DistPanel" Grid.Row="2" Height="30">
+        <Grid Grid.Row="2" Height="30" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=0}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
@@ -75,115 +71,119 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{ll:LocalizedLang plainLabelText}" Style="{StaticResource LableTb}"/>
-            <ctl:FileInput x:Name="plainFileTb" FileChanged="plainFileTb_FileChanged" Grid.Column="1" />
+            <ctl:FileInput FileName="{Binding PlainArchiveFile}" Grid.Column="1" />
             <TextBlock Text="{ll:LocalizedLang cipherFileLabelText}" Grid.Column="2" Style="{StaticResource LableTb}"/>
-            <ComboBox x:Name="plainNameTb" ItemsSource="{Binding PlainItems}"
+            <ComboBox ItemsSource="{Binding PlainItems}"
                       Style="{StaticResource FileCb}"
-                      Grid.Column="3" SelectionChanged="cipherNameTb_SelectionChanged"/>
+                      Grid.Column="3"
+                      Text="{Binding PlainSelectedName}"/>
         </Grid>
-        <Grid x:Name="DistFilePanel" Grid.Row="2" Height="30" Visibility="Collapsed">
+        <Grid Grid.Row="2" Height="30"  Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=1}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{ll:LocalizedLang fileLabelText}" Style="{StaticResource LableTb}"/>
-            <ctl:FileInput x:Name="plainSourceTb" Grid.Column="1" FileChanged="plainSourceTb_FileChanged"/>
+            <ctl:FileInput FileName="{Binding PlainFile}"  Filter="" Grid.Column="1"/>
         </Grid>
-        <Grid x:Name="DistTextPanel" Grid.Row="2" Height="60" Visibility="Collapsed">
+        <Grid Grid.Row="2" Height="60"  Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=2}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{ll:LocalizedLang textLabelText}" Style="{StaticResource LableTb}"/>
-            <TextBox x:Name="TextTb" Grid.Column="1" AcceptsReturn="True" AcceptsTab="True" TextChanged="TextTb_TextChanged"/>
+            <TextBox Grid.Column="1" AcceptsReturn="True" AcceptsTab="True" Text="{Binding PlainText}"/>
         </Grid>
-        <Grid x:Name="PwdPanel" Grid.Row="2" Height="30" Visibility="Collapsed">
+        <Grid Grid.Row="2" Height="30"  Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=5}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{ll:LocalizedLang pwdRuleLabel}" Style="{StaticResource LableTb}"/>
-            <TextBox x:Name="PwdRuleTb" Grid.Column="1" MaxLines="1" TextChanged="PwdRuleTb_TextChanged"/>
+            <TextBox Grid.Column="1" MaxLines="1" Text="{Binding PasswordRule}"/>
         </Grid>
 
-        <Grid x:Name="CvtPanel" Grid.Row="2" Height="30" Visibility="Collapsed">
+        <Grid Grid.Row="2" Height="30" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=4}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{ll:LocalizedLang pwdNewLabel}" Style="{StaticResource LableTb}"/>
-            <TextBox x:Name="PwdNewTb" Grid.Column="1" MaxLines="1"/>
+            <TextBox Grid.Column="1" MaxLines="1" Text="{Binding PasswordNew}"/>
         </Grid>
-        <Grid x:Name="KeyPanel" Grid.Row="3">
+        <Grid Grid.Row="3" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter='^6'}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="{ll:LocalizedLang keyLabelText}" Style="{StaticResource LableTb}" ToolTip="Keys obtained through plaintext attacks "/>
+            <TextBlock Text="{ll:LocalizedLang keyLabelText}" Style="{StaticResource LableTb}" ToolTip="{ll:LocalizedLang keyTip}"/>
             <ctl:KeyInput x:Name="KeyTb" TextChanged="KeyTb_TextChanged" Grid.Column="1"/>
         </Grid>
-        <Grid x:Name="DecodeFilePanel" Grid.Row="3" Visibility="Collapsed">
+        <Grid Grid.Row="3" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=5}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{ll:LocalizedLang DecodeLabelText}" Style="{StaticResource LableTb}"/>
-            <ctl:FileInput x:Name="DecodeTb" Grid.Column="1" FileChanged="DecodeTb_FileChanged"/>
+            <ctl:FileInput Grid.Column="1" FileName="{Binding DecodeFile}" Filter=""/>
         </Grid>
 
         <ctl:ConsoleContainer x:Name="infoTb" Grid.Row="4"/>
 
-        <ProgressBar x:Name="progressBar" Grid.Row="5" Height="10" Visibility="Collapsed"/>
-        <Grid x:Name="GetActionPanel" Grid.Row="6">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="GetBtn" Content="{ll:LocalizedLang getBtnContent}" IsEnabled="False" 
-                    Click="GetBtn_Click"/>
-            <Button Content="{ll:LocalizedLang clearBtnText}" Click="ClearBtn_Click" Grid.Column="2"/>
+        <ProgressBar x:Name="progressBar" Grid.Row="5" Height="10" Visibility="{Binding IsPaused,Converter={StaticResource ToggleCvt},ConverterParameter=False}"/>
+        <Grid Grid.Row="6" Visibility="{Binding IsPaused,Converter={StaticResource ToggleCvt}}">
+            <Grid Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter='0,1,2'}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="{ll:LocalizedLang getBtnContent}" IsEnabled="False" 
+                        Command="{Binding GetCommand}"/>
+                <Button Content="{ll:LocalizedLang clearBtnText}" Command="{Binding ClearCommand}" Grid.Column="2"/>
+            </Grid>
+            <Grid  Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=3}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="{ll:LocalizedLang unzipFileBtnText}" 
+            IsEnabled="False" Command="{Binding DecompressCommand}"/>
+                <Button Content="{ll:LocalizedLang unzipFilesBtnText}" 
+            IsEnabled="False" Command="{Binding DecompressFilesCommand}" Grid.Column="1"/>
+                <Button Content="{ll:LocalizedLang clearBtnText}" Command="{Binding ClearCommand}" Grid.Column="2"/>
+            </Grid>
+            <Grid  Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=4}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="{ll:LocalizedLang cvtBtnContent}" 
+            IsEnabled="False" Command="{Binding ConverterCommand}"/>
+                <Button Content="{ll:LocalizedLang clearBtnText}" Command="{Binding ClearCommand}" Grid.Column="1"/>
+            </Grid>
+            <Grid  Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=5}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="{ll:LocalizedLang recoverBtnContent}" 
+            IsEnabled="False" Command="{Binding RecoverCommand}"/>
+                <Button Content="{ll:LocalizedLang clearBtnText}" Command="{Binding ClearCommand}" Grid.Column="1"/>
+            </Grid>
+            <Grid Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=6}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="{ll:LocalizedLang decodeBtnContent}" 
+            IsEnabled="False"
+            Command="{Binding DecodeCommand}"/>
+                <Button Content="{ll:LocalizedLang clearBtnText}" Command="{Binding ClearCommand}"  Grid.Column="1"/>
+            </Grid>
         </Grid>
-        <Grid x:Name="UnzipActionPanel" Grid.Row="6" Visibility="Collapsed">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="UnzipFileBtn" Content="{ll:LocalizedLang unzipFileBtnText}" 
-                    IsEnabled="False" Click="UnzipFileBtn_Click"/>
-            <Button x:Name="UnzipFilesBtn" Content="{ll:LocalizedLang unzipFilesBtnText}" 
-                    IsEnabled="False" Click="UnzipFilesBtn_Click" Grid.Column="1"/>
-            <Button Content="{ll:LocalizedLang clearBtnText}" Click="ClearBtn_Click" Grid.Column="2"/>
-        </Grid>
-        <Grid x:Name="ConverterActionPanel" Grid.Row="6" Visibility="Collapsed">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="ConverterBtn" Content="{ll:LocalizedLang cvtBtnContent}" 
-                    IsEnabled="False" Click="ConverterBtn_Click"/>
-            <Button Content="{ll:LocalizedLang clearBtnText}" Click="ClearBtn_Click" Grid.Column="1"/>
-        </Grid>
-        <Grid x:Name="PwdActionPanel" Grid.Row="6" Visibility="Collapsed">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="RecoverBtn" Content="{ll:LocalizedLang recoverBtnContent}" 
-                    IsEnabled="False" Click="RecoverBtn_Click"/>
-            <Button Content="{ll:LocalizedLang clearBtnText}" Click="ClearBtn_Click" Grid.Column="1"/>
-        </Grid>
-        <Grid x:Name="DecodeActionPanel" Grid.Row="6" Visibility="Collapsed">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="DecodeBtn" Content="{ll:LocalizedLang decodeBtnContent}" 
-                    IsEnabled="False"
-                    Click="DecodeBtn_Click"/>
-            <Button Content="{ll:LocalizedLang clearBtnText}" Click="ClearBtn_Click" Grid.Column="1"/>
-        </Grid>
-        <Button x:Name="StopBtn" Click="StopBtn_Click" 
-                Content="{ll:LocalizedLang stopBtnText}" Grid.Row="6" Visibility="Collapsed"/>
+        <Button Command="{Binding StopCommand}" 
+                Content="{ll:LocalizedLang stopBtnText}" Grid.Row="6" 
+                Visibility="{Binding IsPaused,Converter={StaticResource ToggleCvt},ConverterParameter=False}"/>
     </Grid>
 </Window>

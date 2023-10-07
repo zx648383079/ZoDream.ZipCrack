@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
-	  <LangVersion>10</LangVersion>
+	  <LangVersion>11</LangVersion>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
 	 <UseWindowsForms>true</UseWindowsForms>
@@ -17,20 +17,32 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="cracker.ico" />
+    <Compile Remove="Models\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Models\**" />
+    <Page Remove="Models\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <Content Include="cracker.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ZoDream.Shared\ZoDream.Shared.csproj" />
   </ItemGroup>
 	<ItemGroup>
-		<None Include="..\x64\Debug\cracker.dll">
+		<None Include="..\x64\Debug\cracker.dll" Link="x64\cracker.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\x86\Debug\cracker.dll" Link="x86\cracker.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="x64\" />
+	  <Folder Include="x86\" />
 	</ItemGroup>
 
 </Project>

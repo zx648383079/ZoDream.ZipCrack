@@ -180,6 +180,9 @@
   <data name="keyLabelText" xml:space="preserve">
     <value>内部Keys</value>
   </data>
+  <data name="keyTip" xml:space="preserve">
+    <value>通过明文攻击获取的密钥</value>
+  </data>
   <data name="modeLabelText" xml:space="preserve">
     <value>切换模式</value>
   </data>

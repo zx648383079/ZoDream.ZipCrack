@@ -180,6 +180,9 @@
   <data name="keyLabelText" xml:space="preserve">
     <value>Internal Keys</value>
   </data>
+  <data name="keyTip" xml:space="preserve">
+    <value>Keys obtained through plaintext attacks</value>
+  </data>
   <data name="modeLabelText" xml:space="preserve">
     <value>Mode</value>
   </data>
