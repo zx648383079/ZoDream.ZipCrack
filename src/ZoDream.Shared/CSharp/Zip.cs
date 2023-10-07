@@ -143,6 +143,54 @@ namespace ZoDream.Shared.CSharp
             }
             inflator.Close();
         }
+        /// <summary>
+        /// 加密
+        /// </summary>
+        /// <param name="inputStream"></param>
+        /// <param name="outputStream"></param>
+        public static void DeflateFile(Stream inputStream, Stream outputStream)
+        {
+            var deflator = new DeflaterOutputStream(outputStream, new Deflater(Deflater.BEST_COMPRESSION, false));
+            int size;
+            var data = new byte[4096];
+            while (true)
+            {
+                size = inputStream.Read(data, 0, data.Length);
+                if (size > 0)
+                {
+                    deflator.Write(data, 0, size);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            // deflator.Close();
+        }
+
+        public static void DeflateFile(string file, Stream outputStream)
+        {
+            using var fs = new FileStream(file, FileMode.Open, FileAccess.Read);
+            DeflateFile(fs, outputStream);
+        }
+        /// <summary>
+        /// /加密
+        /// </summary>
+        /// <param name="inputStream"></param>
+        /// <param name="outputStream"></param>
+        public static void DeflateByte(byte[] input, Stream outputStream)
+        {
+            var deflator = new DeflaterOutputStream(outputStream, new Deflater(Deflater.DEFAULT_COMPRESSION, false));
+            deflator.Write(input, 0, input.Length);
+            deflator.Close();
+        }
+
+        public static byte[] DeflateText(string val, Encoding encoding)
+        {
+            using var ms = new MemoryStream();
+            DeflateByte(encoding.GetBytes(val), ms);
+            return ms.GetBuffer();
+        }
 
         public static void DecodeDeflatedFile(string inputFile, string outputFile)
         {

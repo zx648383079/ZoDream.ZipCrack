@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using ZoDream.Shared.CSharp;
 using ZoDream.ZipCrack.Utils;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ZoDream.ZipCrack.ViewModels
 {
@@ -19,12 +20,12 @@ namespace ZoDream.ZipCrack.ViewModels
         public ICommand StopCommand { get; private set; }
         public ICommand ClearCommand { get; private set; }
 
-        public bool EnableGet => !string.IsNullOrWhiteSpace(CipherArchiveFile) &&
-                string.IsNullOrWhiteSpace(CipherSelectedName) &&
-                !(ModeIndex < 1 && (string.IsNullOrWhiteSpace(PlainArchiveFile) ||
-                string.IsNullOrWhiteSpace(PlainSelectedName))) &&
-                !(ModeIndex == 1 && string.IsNullOrWhiteSpace(PlainFile)) &&
-                !(ModeIndex == 2 && string.IsNullOrWhiteSpace(PlainText));
+        public bool EnableGet => !(string.IsNullOrWhiteSpace(CipherArchiveFile) ||
+                string.IsNullOrWhiteSpace(CipherSelectedName) ||
+                (ModeIndex < 1 && (string.IsNullOrWhiteSpace(PlainArchiveFile) ||
+                string.IsNullOrWhiteSpace(PlainSelectedName))) ||
+                (ModeIndex == 1 && string.IsNullOrWhiteSpace(PlainFile)) ||
+                (ModeIndex == 2 && string.IsNullOrWhiteSpace(PlainText)));
 
         private void TapGet(object? _)
         {

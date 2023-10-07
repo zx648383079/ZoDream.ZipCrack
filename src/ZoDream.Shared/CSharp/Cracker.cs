@@ -408,13 +408,21 @@ namespace ZoDream.Shared.CSharp
         public async Task<KeyItem?> FindKeyAsync(string cipherFile, string cipherFileName, string plainFile)
         {
             StartNew();
+            var tempFile = $"__{DateTime.Now.Millisecond}.zip";
+            var tempFs = File.Open(tempFile, FileMode.Create);
             using var fs = new FileStream(plainFile, FileMode.Open, FileAccess.Read);
-            var buffer = new byte[Math.Min(PlainSize, fs.Length)];
+            Zip.DeflateFile(fs, tempFs);
+            var buffer = new byte[Math.Min(PlainSize, tempFs.Length)];
             if (buffer.Length == 0)
             {
+                tempFs.Close();
+                File.Delete(tempFile);
                 return null;
             }
-            fs.Read(buffer, 0, buffer.Length);
+            tempFs.Seek(0, SeekOrigin.Begin);
+            tempFs.Read(buffer, 0, buffer.Length);
+            tempFs.Close();
+            File.Delete(tempFile);
             return await FindKeyAsync(cipherFile, cipherFileName, buffer);
         }
 

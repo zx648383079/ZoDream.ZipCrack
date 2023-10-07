@@ -71,7 +71,10 @@ namespace ZoDream.ZipCrack.Controls
             }
             set
             {
-                Text = keyTb.Text = string.Join(" ", value).Trim();
+                if (keyTb.IsFocused)
+                {
+                    Text = keyTb.Text = string.Join(" ", value).Trim();
+                }
                 key3Label.Text = value.Length >= 3 ? value[2] : string.Empty;
                 key2Label.Text = value.Length >= 2 ? value[1] : string.Empty;
                 key1Label.Text = value.Length >= 1 ? value[0] : string.Empty;

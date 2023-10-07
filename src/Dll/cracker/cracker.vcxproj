@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Attack.hpp" />
+    <ClInclude Include="CodeConverter.hpp" />
     <ClInclude Include="Cracker.hpp" />
     <ClInclude Include="Crc32Tab.hpp" />
     <ClInclude Include="Data.hpp" />
@@ -171,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Attack.cpp" />
+    <ClCompile Include="CodeConverter.cpp" />
     <ClCompile Include="Cracker.cpp" />
     <ClCompile Include="Crc32Tab.cpp" />
     <ClCompile Include="Data.cpp" />

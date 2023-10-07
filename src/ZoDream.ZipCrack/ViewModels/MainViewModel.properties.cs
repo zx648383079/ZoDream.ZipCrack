@@ -111,7 +111,10 @@ namespace ZoDream.ZipCrack.ViewModels
 
         public string PlainSelectedName {
             get => plainSelectedName;
-            set => Set(ref plainSelectedName, value);
+            set {
+                Set(ref plainSelectedName, value);
+                OnPropertyChanged(nameof(EnableGet));
+            }
         }
 
         private string plainFile = string.Empty;

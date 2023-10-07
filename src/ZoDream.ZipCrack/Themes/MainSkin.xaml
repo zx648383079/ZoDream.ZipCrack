@@ -30,7 +30,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1" 
-                                   Text="{Binding Size, Converter={StaticResource size}}" 
+                                   Text="{Binding Size, Converter={StaticResource SizeCvt}}" 
                                    VerticalAlignment="Center"/>
                     </Grid>
                 </DataTemplate>

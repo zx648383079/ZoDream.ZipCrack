@@ -22,6 +22,9 @@ std::istream& read(std::istream& is, T& x)
 
 std::istream& read(std::istream& is, std::string& string, std::size_t length)
 {
+    // TODO ±àÂë×ª»»
+    // auto codec = CodeConverter("gb2312", "utf-8");
+    // codec.convert(in_gb2312, strlen(in_gb2312), out, OUTLEN)
     string.resize(length);
     return is.read(&string[0], string.size());
 }

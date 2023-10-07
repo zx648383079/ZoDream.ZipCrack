@@ -122,8 +122,7 @@ namespace ZoDream.ZipCrack.ViewModels
             else if (ModeIndex == 2)
             {
                 keys = await crackerTask.FindKeyAsync(CipherArchiveFile, CipherSelectedName.Trim(),
-                Encoding.GetEncoding(EncodingText.Trim()).GetBytes(PlainText)
-                    );
+                    Zip.DeflateText(PlainText, Encoding.GetEncoding(EncodingText.Trim())));
             }
             else
             {

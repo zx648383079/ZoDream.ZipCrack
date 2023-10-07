@@ -58,7 +58,7 @@
             <TextBlock Text="{ll:LocalizedLang cipherFileLabelText}" Grid.Column="2" Style="{StaticResource LableTb}"/>
             <ComboBox ItemsSource="{Binding CipherItems}" 
                       Grid.Column="3" Style="{StaticResource FileCb}" 
-                      Text="{Binding CipherSelectedName}"/>
+                      Text="{Binding CipherSelectedName,Mode=TwoWay}"/>
         </Grid>
         <Grid Grid.Row="2" Height="30" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=0}">
             <Grid.ColumnDefinitions>
@@ -73,7 +73,7 @@
             <ComboBox ItemsSource="{Binding PlainItems}"
                       Style="{StaticResource FileCb}"
                       Grid.Column="3"
-                      Text="{Binding PlainSelectedName}"/>
+                      Text="{Binding PlainSelectedName,Mode=TwoWay}"/>
         </Grid>
         <Grid Grid.Row="2" Height="30" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=1}">
             <Grid.ColumnDefinitions>
