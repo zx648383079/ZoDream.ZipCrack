@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ZoDream.Shared.CSharp;
 using ZoDream.Shared.Models;
+using ZoDream.Shared.ViewModel;
 
 namespace ZoDream.ZipCrack.ViewModels
 {
@@ -21,7 +19,7 @@ namespace ZoDream.ZipCrack.ViewModels
         }
 
 
-        private ObservableCollection<FileItem> cipherItems = new ObservableCollection<FileItem>();
+        private ObservableCollection<FileItem> cipherItems = new();
 
         public ObservableCollection<FileItem> CipherItems
         {
@@ -29,7 +27,7 @@ namespace ZoDream.ZipCrack.ViewModels
             set => Set(ref cipherItems, value);
         }
 
-        private ObservableCollection<FileItem> plainItems = new ObservableCollection<FileItem>();
+        private ObservableCollection<FileItem> plainItems = new();
 
         public ObservableCollection<FileItem> PlainItems
         {
@@ -56,7 +54,7 @@ namespace ZoDream.ZipCrack.ViewModels
             return false;
         }
 
-        public void Loadcipher(string file)
+        public void LoadCipher(string file)
         {
             if (Path.GetExtension(file) != ".zip")
             {

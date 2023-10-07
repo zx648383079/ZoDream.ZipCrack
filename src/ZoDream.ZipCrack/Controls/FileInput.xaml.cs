@@ -35,7 +35,8 @@ namespace ZoDream.ZipCrack.Controls
 
         // Using a DependencyProperty as the backing store for FileName.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty FileNameProperty =
-            DependencyProperty.Register("FileName", typeof(string), typeof(FileInput), new PropertyMetadata(string.Empty));
+            DependencyProperty.Register("FileName", typeof(string), typeof(FileInput), 
+                new FrameworkPropertyMetadata(string.Empty) { BindsTwoWayByDefault = true});
 
 
 
@@ -131,7 +132,10 @@ namespace ZoDream.ZipCrack.Controls
 
         private void FileTb_TextChanged(object sender, TextChangedEventArgs e)
         {
-            FileChanged?.Invoke(this, (sender as TextBox).Text.Trim());
+            if (sender is TextBox tb)
+            {
+                FileChanged?.Invoke(this, tb.Text.Trim());
+            }
         }
     }
 
