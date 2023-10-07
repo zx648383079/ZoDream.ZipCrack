@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows.Data;
 using System.Windows;
 
-namespace ZoDream.Shared.Converters
+namespace ZoDream.ZipCrack.Converters
 {
     public class ToggleConverter : IValueConverter
     {
@@ -50,6 +50,10 @@ namespace ZoDream.Shared.Converters
             {
                 isRevert = true;
                 pStr = pStr[1..];
+            }
+            else if (pStr.StartsWith("-"))
+            {
+                return (int)value < int.Parse(pStr[1..]);
             }
             return pStr.Split(',').Contains(vStr) == !isRevert;
         }

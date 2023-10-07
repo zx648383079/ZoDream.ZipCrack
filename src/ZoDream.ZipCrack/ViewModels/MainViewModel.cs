@@ -15,14 +15,14 @@ namespace ZoDream.ZipCrack.ViewModels
 
         public MainViewModel()
         {
-            GetCommand = new RelayCommand(EnableGet, TapGet);
+            GetCommand = new RelayCommand(TapGet);
             StopCommand = new RelayCommand(TapStop);
             ClearCommand = new RelayCommand(TapClear);
-            DecodeCommand = new RelayCommand(EnableDecode, TapDecode);
-            DecompressCommand = new RelayCommand(EnableDecompress, TapDecompress);
-            DecompressFilesCommand = new RelayCommand(EnableDecompressFiles, TapDecompressFiles);
-            RecoverCommand = new RelayCommand(EnableRecover, TapRecover);
-            ConverterCommand = new RelayCommand(EnableConverter, TapConverter);
+            DecodeCommand = new RelayCommand(TapDecode);
+            DecompressCommand = new RelayCommand(TapDecompress);
+            DecompressFilesCommand = new RelayCommand(TapDecompressFiles);
+            RecoverCommand = new RelayCommand(TapRecover);
+            ConverterCommand = new RelayCommand(TapConverter);
             modeItems = new string[]
             {
                 LocalizedLangExtension.GetString("getKey"),

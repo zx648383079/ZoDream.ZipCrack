@@ -10,16 +10,13 @@
         Unloaded="Window_Unloaded"
         Title="Zip Cracker" Height="450" Width="800" 
         WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <ResourceDictionary Source="Themes/MainSkin.xaml"/>
+    </Window.Resources>
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/MainSkin.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -49,7 +46,7 @@
                       IsChecked="{Binding UseDll,Mode=TwoWay}" Content="{ll:LocalizedLang useCPlus}"
                       ToolTip="{ll:LocalizedLang useCPlusTip}"/>
         </Grid>
-        <Grid Grid.Row="1" Height="30" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter='0,1,2,3,4'}">
+        <Grid Grid.Row="1" Height="30" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter='-5'}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
@@ -78,7 +75,7 @@
                       Grid.Column="3"
                       Text="{Binding PlainSelectedName}"/>
         </Grid>
-        <Grid Grid.Row="2" Height="30"  Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=1}">
+        <Grid Grid.Row="2" Height="30" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=1}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
@@ -117,9 +114,9 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{ll:LocalizedLang keyLabelText}" Style="{StaticResource LableTb}" ToolTip="{ll:LocalizedLang keyTip}"/>
-            <ctl:KeyInput x:Name="KeyTb" Grid.Column="1"/>
+            <ctl:KeyInput InternalKey="{Binding InternalKey}"  Grid.Column="1"/>
         </Grid>
-        <Grid Grid.Row="3" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=5}">
+        <Grid Grid.Row="3" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=6}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
@@ -132,12 +129,12 @@
 
         <ProgressBar x:Name="progressBar" Grid.Row="5" Height="10" Visibility="{Binding IsPaused,Converter={StaticResource ToggleCvt},ConverterParameter=False}"/>
         <Grid Grid.Row="6" Visibility="{Binding IsPaused,Converter={StaticResource ToggleCvt}}">
-            <Grid Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter='0,1,2'}">
+            <Grid Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter='-3'}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Content="{ll:LocalizedLang getBtnContent}" IsEnabled="False" 
+                <Button Content="{ll:LocalizedLang getBtnContent}" IsEnabled="{Binding EnableGet}" 
                         Command="{Binding GetCommand}"/>
                 <Button Content="{ll:LocalizedLang clearBtnText}" Command="{Binding ClearCommand}" Grid.Column="2"/>
             </Grid>
@@ -148,9 +145,9 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Button Content="{ll:LocalizedLang unzipFileBtnText}" 
-            IsEnabled="False" Command="{Binding DecompressCommand}"/>
+                    IsEnabled="{Binding EnableDecompress}"  Command="{Binding DecompressCommand}"/>
                 <Button Content="{ll:LocalizedLang unzipFilesBtnText}" 
-            IsEnabled="False" Command="{Binding DecompressFilesCommand}" Grid.Column="1"/>
+                    IsEnabled="{Binding EnableDecompressFiles}" Command="{Binding DecompressFilesCommand}" Grid.Column="1"/>
                 <Button Content="{ll:LocalizedLang clearBtnText}" Command="{Binding ClearCommand}" Grid.Column="2"/>
             </Grid>
             <Grid  Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=4}">
@@ -159,7 +156,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Button Content="{ll:LocalizedLang cvtBtnContent}" 
-            IsEnabled="False" Command="{Binding ConverterCommand}"/>
+                    IsEnabled="{Binding EnableConverter}" Command="{Binding ConverterCommand}"/>
                 <Button Content="{ll:LocalizedLang clearBtnText}" Command="{Binding ClearCommand}" Grid.Column="1"/>
             </Grid>
             <Grid  Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=5}">
@@ -168,7 +165,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Button Content="{ll:LocalizedLang recoverBtnContent}" 
-            IsEnabled="False" Command="{Binding RecoverCommand}"/>
+                    IsEnabled="{Binding EnableRecover}" Command="{Binding RecoverCommand}"/>
                 <Button Content="{ll:LocalizedLang clearBtnText}" Command="{Binding ClearCommand}" Grid.Column="1"/>
             </Grid>
             <Grid Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=6}">
@@ -177,8 +174,8 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Button Content="{ll:LocalizedLang decodeBtnContent}" 
-            IsEnabled="False"
-            Command="{Binding DecodeCommand}"/>
+                    IsEnabled="{Binding EnableDecode}"
+                    Command="{Binding DecodeCommand}"/>
                 <Button Content="{ll:LocalizedLang clearBtnText}" Command="{Binding ClearCommand}"  Grid.Column="1"/>
             </Grid>
         </Grid>

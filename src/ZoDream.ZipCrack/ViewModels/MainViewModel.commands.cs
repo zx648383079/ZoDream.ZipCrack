@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Input;
 using ZoDream.Shared.CSharp;
 using ZoDream.ZipCrack.Utils;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ZoDream.ZipCrack.ViewModels
 {
@@ -20,15 +19,12 @@ namespace ZoDream.ZipCrack.ViewModels
         public ICommand StopCommand { get; private set; }
         public ICommand ClearCommand { get; private set; }
 
-        private bool EnableGet(object? _)
-        {
-            return !string.IsNullOrWhiteSpace(CipherArchiveFile) &&
+        public bool EnableGet => !string.IsNullOrWhiteSpace(CipherArchiveFile) &&
                 string.IsNullOrWhiteSpace(CipherSelectedName) &&
                 !(ModeIndex < 1 && (string.IsNullOrWhiteSpace(PlainArchiveFile) ||
                 string.IsNullOrWhiteSpace(PlainSelectedName))) &&
                 !(ModeIndex == 1 && string.IsNullOrWhiteSpace(PlainFile)) &&
                 !(ModeIndex == 2 && string.IsNullOrWhiteSpace(PlainText));
-        }
 
         private void TapGet(object? _)
         {
@@ -65,16 +61,13 @@ namespace ZoDream.ZipCrack.ViewModels
             // infoTb.Clear();
         }
 
-        private bool EnableDecode(object? _)
-        {
-            return !string.IsNullOrWhiteSpace(DecodeFile);
-        }
+        public bool EnableDecode => !string.IsNullOrWhiteSpace(DecodeFile);
 
         private void TapDecode(object? _)
         {
             var picker = new Microsoft.Win32.SaveFileDialog()
             {
-                FileName = System.IO.Path.GetFileName(DecodeFile)
+                FileName = Path.GetFileName(DecodeFile)
             };
             if (picker.ShowDialog() != true)
             {
@@ -94,10 +87,7 @@ namespace ZoDream.ZipCrack.ViewModels
             }
         }
 
-        private bool EnableRecover(object? _)
-        {
-            return false;
-        }
+        public bool EnableRecover => !string.IsNullOrWhiteSpace(PasswordRule) && InternalKey is not null;
 
         private async void TapRecover(object? _)
         {
@@ -115,17 +105,13 @@ namespace ZoDream.ZipCrack.ViewModels
             IsPaused = true;
         }
 
-        private bool EnableConverter(object? _)
-        {
-            return false;
-        }
+        public bool EnableConverter => !string.IsNullOrWhiteSpace(CipherArchiveFile) && InternalKey is not null;
 
         private async void TapConverter(object? _)
         {
             var picker = new Microsoft.Win32.SaveFileDialog
             {
-                Title = "选择保存路径",
-                Filter = "ZIP文件|*.zip|所有文件|*.*",
+                Filter = "ZIP|*.zip|All Files|*.*",
             };
             if (picker.ShowDialog() != true)
             {
@@ -141,10 +127,9 @@ namespace ZoDream.ZipCrack.ViewModels
             IsPaused = true;
         }
 
-        private bool EnableDecompress(object? _)
-        {
-            return InternalKey is not null;
-        }
+        public bool EnableDecompress => !string.IsNullOrWhiteSpace(CipherArchiveFile) 
+            && !string.IsNullOrWhiteSpace(CipherSelectedName)
+            && InternalKey is not null;
 
         private void TapDecompress(object? _)
         {
@@ -156,10 +141,7 @@ namespace ZoDream.ZipCrack.ViewModels
             Unpack(true);
         }
 
-        private bool EnableDecompressFiles(object? _)
-        {
-            return EnableDecompress(_);
-        }
+        public bool EnableDecompressFiles => !string.IsNullOrWhiteSpace(CipherArchiveFile) && InternalKey is not null;
 
         private void TapDecompressFiles(object? _)
         {

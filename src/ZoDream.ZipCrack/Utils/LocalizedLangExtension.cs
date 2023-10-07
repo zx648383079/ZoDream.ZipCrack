@@ -16,6 +16,8 @@ namespace ZoDream.ZipCrack.Utils
     [MarkupExtensionReturnType(typeof(BindingExpression))]
     public class LocalizedLangExtension : MarkupExtension, INotifyPropertyChanged
     {
+        private const string RootNamespace = "ZoDream.ZipCrack";
+
         public event PropertyChangedEventHandler? PropertyChanged;
         private static bool? DesignMode = null;
         private static EventHandler<EventArgs?>? LocalLanguageChangeEvent;
@@ -26,7 +28,10 @@ namespace ZoDream.ZipCrack.Utils
         {
             LocalLanguageChangeEvent += new EventHandler<EventArgs>(LocalLanguageChangedHandler);
 
-            Init();
+            if (ResourceManager is null)
+            {
+                Init();
+            }
         }
 
         public LocalizedLangExtension(string key)
@@ -35,10 +40,10 @@ namespace ZoDream.ZipCrack.Utils
             Key = key;
         }
 
-        public void Init()
+        public static void Init()
         {
             // 本地化语言资源文件根名
-            ResourceManager = new ResourceManager("ZoDream.ZipCrack.Strings.Resource", typeof(LocalizedLangExtension).Assembly);
+            ResourceManager = new ResourceManager($"{RootNamespace}.Strings.Resource", typeof(LocalizedLangExtension).Assembly);
 
             // 设置与系统相同的本地语言
             string lang = CultureInfo.CurrentUICulture.Name;
@@ -48,25 +53,22 @@ namespace ZoDream.ZipCrack.Utils
         [ConstructorArgument("key")]
         public string? Key { get; set; }
 
-        private string mDefaultValue;
+        private string mDefaultValue = string.Empty;
         /// <summary>
         /// 默认值，为了使在设计器的情况时把默认值绑到设计器
         /// </summary>
-        public string DefaultValue
-        {
+        public string DefaultValue {
             get => mDefaultValue;
             set => mDefaultValue = value;
         }
 
-        private string mCurrentValue;
+        private string mCurrentValue = string.Empty;
         /// <summary>
         /// 资源的具体内容，通过资源名称也就是上面的Key找到对应内容
         /// </summary>
-        public string CurrentValue
-        {
+        public string CurrentValue {
             /* get */
-            get
-            {
+            get {
                 /* 如果为设计器模式,本地的资源没有实例化，我们不能从资源文件得到内容，所以从KEY或默认值绑定到设计器去 */
                 if (IsDesignMode)
                 {
@@ -130,10 +132,8 @@ namespace ZoDream.ZipCrack.Utils
         /// <summary>
         /// 判断是设计器还是程序运行
         /// </summary>
-        public static bool IsDesignMode
-        {
-            get
-            {
+        public static bool IsDesignMode {
+            get {
                 if (null == DesignMode)
                 {
                     var prop = DesignerProperties.IsInDesignModeProperty;
@@ -175,17 +175,21 @@ namespace ZoDream.ZipCrack.Utils
         /// <returns></returns>
         public static string GetString(string key)
         {
-            string? resault = null;
+            string? result = null;
 
             try
             {
-                resault = ResourceManager?.GetString(key, CurrentCulture);
+                if (ResourceManager is null)
+                {
+                    Init();
+                }
+                result = ResourceManager?.GetString(key, CurrentCulture);
             }
             finally
             {
-                resault = resault ?? key;
+                result = result ?? key;
             }
-            return resault;
+            return result;
         }
     }
 }

@@ -67,6 +67,10 @@ namespace ZoDream.ZipCrack.ViewModels
                 Zip.CodePage = EncodingText.Trim();
                 LoadCipher(value);
                 CipherSelectedName = string.Empty;
+                OnPropertyChanged(nameof(EnableGet));
+                OnPropertyChanged(nameof(EnableDecompress));
+                OnPropertyChanged(nameof(EnableDecompressFiles));
+                OnPropertyChanged(nameof(EnableConverter));
             }
         }
 
@@ -74,7 +78,11 @@ namespace ZoDream.ZipCrack.ViewModels
 
         public string CipherSelectedName {
             get => cipherSelectedName;
-            set => Set(ref cipherSelectedName, value);
+            set {
+                Set(ref cipherSelectedName, value);
+                OnPropertyChanged(nameof(EnableGet));
+                OnPropertyChanged(nameof(EnableDecompress));
+            }
         }
 
         private string plainArchiveFile = string.Empty;
@@ -95,6 +103,7 @@ namespace ZoDream.ZipCrack.ViewModels
                     MessageBox.Show(LocalizedLangExtension.GetString("plainError"));
                     PlainSelectedName = string.Empty;
                 }
+                OnPropertyChanged(nameof(EnableGet));
             }
         }
 
@@ -109,14 +118,20 @@ namespace ZoDream.ZipCrack.ViewModels
 
         public string PlainFile {
             get => plainFile;
-            set => Set(ref plainFile, value);
+            set {
+                Set(ref plainFile, value);
+                OnPropertyChanged(nameof(EnableGet));
+            }
         }
 
         private string plainText = string.Empty;
 
         public string PlainText {
             get => plainText;
-            set => Set(ref plainText, value);
+            set {
+                Set(ref plainText, value);
+                OnPropertyChanged(nameof(EnableGet));
+            }
         }
 
 
@@ -140,7 +155,10 @@ namespace ZoDream.ZipCrack.ViewModels
         private string passwordRule = string.Empty;
         public string PasswordRule {
             get => passwordRule;
-            set => Set(ref passwordRule, value);
+            set {
+                Set(ref passwordRule, value);
+                OnPropertyChanged(nameof(EnableRecover));
+            }
         }
 
         private string passwordNew = string.Empty;
@@ -153,14 +171,24 @@ namespace ZoDream.ZipCrack.ViewModels
 
         public string DecodeFile {
             get => decodeFile;
-            set => Set(ref decodeFile, value);
+            set {
+                Set(ref decodeFile, value);
+                OnPropertyChanged(nameof(EnableDecode));
+            }
         }
 
         private KeyItem? internalKey;
 
         public KeyItem? InternalKey {
             get => internalKey;
-            set => Set(ref internalKey, value);
+            set {
+                Set(ref internalKey, value);
+                OnPropertyChanged(nameof(EnableDecompress));
+                OnPropertyChanged(nameof(EnableDecompressFiles));
+                OnPropertyChanged(nameof(EnableConverter));
+                OnPropertyChanged(nameof(EnableDecode));
+                OnPropertyChanged(nameof(EnableRecover));
+            }
         }
 
     }

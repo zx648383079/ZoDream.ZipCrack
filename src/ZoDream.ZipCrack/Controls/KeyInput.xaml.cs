@@ -16,8 +16,6 @@ namespace ZoDream.ZipCrack.Controls
             InitializeComponent();
         }
 
-
-
         public string Text
         {
             get { return (string)GetValue(TextProperty); }
@@ -27,6 +25,20 @@ namespace ZoDream.ZipCrack.Controls
         // Using a DependencyProperty as the backing store for Text.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(KeyInput), new PropertyMetadata(string.Empty, OnTextChanged));
+
+
+
+        public KeyItem InternalKey {
+            get { return (KeyItem)GetValue(InternalKeyProperty); }
+            set { SetValue(InternalKeyProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Keys.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty InternalKeyProperty =
+            DependencyProperty.Register(nameof(InternalKey), typeof(KeyItem), typeof(KeyInput), 
+                new FrameworkPropertyMetadata(null, (d, s) => {
+                    (d as KeyInput)?.UpdateByKey();
+                }) { BindsTwoWayByDefault = true});
 
         public event TextChangedEventHandler? TextChanged;
 
@@ -44,6 +56,11 @@ namespace ZoDream.ZipCrack.Controls
             {
                 Text = value == null ? string.Empty : value.ToString();
             }
+        }
+
+        private void UpdateByKey()
+        {
+            Keys = InternalKey;
         }
 
         public string[] KeyArray
@@ -65,8 +82,7 @@ namespace ZoDream.ZipCrack.Controls
 
         private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var self = d as KeyInput;
-            if (self == null)
+            if (d is not KeyInput self)
             {
                 return;
             }
@@ -83,6 +99,7 @@ namespace ZoDream.ZipCrack.Controls
         {
             Text = (sender as TextBox)!.Text;
             TextChanged?.Invoke(this, Text);
+            InternalKey = Keys;
         }
 
         private void keyTb_LostFocus(object sender, RoutedEventArgs e)

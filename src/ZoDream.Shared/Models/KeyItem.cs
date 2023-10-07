@@ -31,9 +31,13 @@ namespace ZoDream.Shared.Models
 
         public KeyItem(string x, string y, string z)
         {
-            X = Convert.ToUInt32(x, 16);
-            Y = Convert.ToUInt32(y, 16);
-            Z = Convert.ToUInt32(z, 16);
+            try
+            {
+                X = Convert.ToUInt32(x, 16);
+                Y = Convert.ToUInt32(y, 16);
+                Z = Convert.ToUInt32(z, 16);
+            }
+            catch { }
         }
 
         public KeyItem Clone()
