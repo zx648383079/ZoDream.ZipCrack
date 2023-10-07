@@ -141,6 +141,9 @@
   <data name="converterZip" xml:space="preserve">
     <value>Converter As New Zip</value>
   </data>
+  <data name="crackBtnContent" xml:space="preserve">
+    <value>Start</value>
+  </data>
   <data name="cvtBtnContent" xml:space="preserve">
     <value>Convert</value>
   </data>
@@ -152,6 +155,15 @@
   </data>
   <data name="DecodeLabelText" xml:space="preserve">
     <value>Deflated File</value>
+  </data>
+  <data name="dictCrack" xml:space="preserve">
+    <value>Password Dictionary Crack</value>
+  </data>
+  <data name="DictFileTip" xml:space="preserve">
+    <value>One password in a row</value>
+  </data>
+  <data name="DictLabelText" xml:space="preserve">
+    <value>Dictionary File</value>
   </data>
   <data name="encodingLabelText" xml:space="preserve">
     <value>Encoding</value>
@@ -212,6 +224,9 @@
   </data>
   <data name="recoverSuccess" xml:space="preserve">
     <value>Recover Password Success</value>
+  </data>
+  <data name="ruleCrack" xml:space="preserve">
+    <value>Password Rule Crack</value>
   </data>
   <data name="selectAFileTip" xml:space="preserve">
     <value>Please Select a file name</value>

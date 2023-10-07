@@ -141,6 +141,9 @@
   <data name="converterZip" xml:space="preserve">
     <value>解压成zip</value>
   </data>
+  <data name="crackBtnContent" xml:space="preserve">
+    <value>开始</value>
+  </data>
   <data name="cvtBtnContent" xml:space="preserve">
     <value>转换</value>
   </data>
@@ -152,6 +155,15 @@
   </data>
   <data name="DecodeLabelText" xml:space="preserve">
     <value>Deflated文件</value>
+  </data>
+  <data name="dictCrack" xml:space="preserve">
+    <value>密码字典破解</value>
+  </data>
+  <data name="DictFileTip" xml:space="preserve">
+    <value>一行一个密码</value>
+  </data>
+  <data name="DictLabelText" xml:space="preserve">
+    <value>密码字典</value>
   </data>
   <data name="encodingLabelText" xml:space="preserve">
     <value>编码</value>
@@ -212,6 +224,9 @@
   </data>
   <data name="recoverSuccess" xml:space="preserve">
     <value>修复密码成功</value>
+  </data>
+  <data name="ruleCrack" xml:space="preserve">
+    <value>密码规则破解</value>
   </data>
   <data name="Select" xml:space="preserve">
     <value>选择</value>

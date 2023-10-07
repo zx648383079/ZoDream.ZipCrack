@@ -55,7 +55,7 @@ namespace ZoDream.ZipCrack.Converters
             {
                 return (int)value < int.Parse(pStr[1..]);
             }
-            return pStr.Split(',').Contains(vStr) == !isRevert;
+            return pStr.Split('|').Contains(vStr) == !isRevert;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -18,6 +18,7 @@ namespace ZoDream.ZipCrack.ViewModels
         public ICommand RecoverCommand { get; private set; }
         public ICommand DecodeCommand { get; private set; }
         public ICommand StopCommand { get; private set; }
+        public ICommand CrackCommand { get; private set; }
         public ICommand ClearCommand { get; private set; }
 
         public bool EnableGet => !(string.IsNullOrWhiteSpace(CipherArchiveFile) ||
@@ -149,5 +150,18 @@ namespace ZoDream.ZipCrack.ViewModels
             Unpack();
         }
 
+        public bool EnableCrack => (ModeIndex == 7 && string.IsNullOrWhiteSpace(PasswordRule)) ||
+            (ModeIndex == 8 && string.IsNullOrWhiteSpace(DictionaryFile));
+
+        public void TapCrack(object? _)
+        {
+            if (ModeIndex == 7)
+            {
+
+            } else if (ModeIndex == 8)
+            {
+
+            }
+        }
     }
 }

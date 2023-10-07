@@ -36,11 +36,9 @@ namespace ZoDream.Shared.CSharp
 
         public KeyItem? FindKey(string cipherFile, string cipherFileName, string plainFile, string plainFileName)
         {
-            using (var cipherStream = File.OpenRead(cipherFile))
-            using (var plainStream = File.OpenRead(plainFile))
-            {
-                return FindKey(cipherStream, cipherFileName, plainStream, plainFileName);
-            }
+            using var cipherStream = File.OpenRead(cipherFile);
+            using var plainStream = File.OpenRead(plainFile);
+            return FindKey(cipherStream, cipherFileName, plainStream, plainFileName);
         }
 
         public KeyItem? FindKey(FileStream cipherStream, string cipherFileName, FileStream plainStream, string plainFileName)
@@ -267,18 +265,16 @@ namespace ZoDream.Shared.CSharp
 
         public bool Unpack(KeyItem keys, string cipherFile, string cipherFileName, string distFolder)
         {
-            using (var fs = File.OpenRead(cipherFile))
+            using var fs = File.OpenRead(cipherFile);
+            if (!Zip.GetFileDataPosition(fs, cipherFileName, out var entry, out var begin, out var end))
             {
-                if (!Zip.GetFileDataPosition(fs, cipherFileName, out var entry, out var begin, out var end))
-                {
-                    return false;
-                }
-                if (entry == null)
-                {
-                    return false;
-                }
-                return Unpack(keys, fs, entry, begin, end, distFolder);
+                return false;
             }
+            if (entry == null)
+            {
+                return false;
+            }
+            return Unpack(keys, fs, entry, begin, end, distFolder);
         }
 
         public bool Unpack(KeyItem keys, FileStream cipherStream, long begin, long end, FileStream distStream, CompressionMethod compression)
@@ -411,7 +407,9 @@ namespace ZoDream.Shared.CSharp
             var tempFile = $"__{DateTime.Now.Millisecond}.zip";
             var tempFs = File.Open(tempFile, FileMode.Create);
             using var fs = new FileStream(plainFile, FileMode.Open, FileAccess.Read);
-            Zip.DeflateFile(fs, tempFs);
+            await Task.Factory.StartNew(() => {
+                Zip.DeflateFile(fs, tempFs);
+            });
             var buffer = new byte[Math.Min(PlainSize, tempFs.Length)];
             if (buffer.Length == 0)
             {

@@ -180,6 +180,14 @@ namespace ZoDream.ZipCrack.ViewModels
             }
         }
 
+        private string dictionaryFile = string.Empty;
+
+        public string DictionaryFile {
+            get => dictionaryFile;
+            set => Set(ref dictionaryFile, value);
+        }
+
+
         private KeyItem? internalKey;
 
         public KeyItem? InternalKey {

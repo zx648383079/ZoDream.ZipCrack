@@ -150,7 +150,7 @@ namespace ZoDream.Shared.CSharp
         /// <param name="outputStream"></param>
         public static void DeflateFile(Stream inputStream, Stream outputStream)
         {
-            var deflator = new DeflaterOutputStream(outputStream, new Deflater(Deflater.BEST_COMPRESSION, false));
+            var deflator = new DeflaterOutputStream(outputStream, new Deflater(Deflater.DEFAULT_COMPRESSION, false));
             int size;
             var data = new byte[4096];
             while (true)

@@ -23,6 +23,7 @@ namespace ZoDream.ZipCrack.ViewModels
             DecompressFilesCommand = new RelayCommand(TapDecompressFiles);
             RecoverCommand = new RelayCommand(TapRecover);
             ConverterCommand = new RelayCommand(TapConverter);
+            CrackCommand = new RelayCommand(TapCrack);
             modeItems = new string[]
             {
                 LocalizedLangExtension.GetString("getKey"),
@@ -32,6 +33,8 @@ namespace ZoDream.ZipCrack.ViewModels
                 LocalizedLangExtension.GetString("converterZip"),
                 LocalizedLangExtension.GetString("recover"),
                 LocalizedLangExtension.GetString("decodeFile"),
+                LocalizedLangExtension.GetString("ruleCrack"),
+                LocalizedLangExtension.GetString("dictCrack"),
             };
             encodingText = Zip.DefaultEncoding();
         }
