@@ -210,6 +210,9 @@
   <data name="pwdNewLabel" xml:space="preserve">
     <value>New Password</value>
   </data>
+  <data name="pwdOffsetLabel" xml:space="preserve">
+    <value>Begin Offset</value>
+  </data>
   <data name="pwdRuleLabel" xml:space="preserve">
     <value>Password Rule</value>
   </data>

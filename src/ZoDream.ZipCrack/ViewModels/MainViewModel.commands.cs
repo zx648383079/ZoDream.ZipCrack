@@ -172,10 +172,10 @@ namespace ZoDream.ZipCrack.ViewModels
             var password = string.Empty;
             if (ModeIndex == 7)
             {
-                password = await extractor.ExtractAsync(CipherArchiveFile, PasswordRule, saveFolder, tokenSource.Token);
+                password = await extractor.ExtractAsync(CipherArchiveFile, PasswordRule, PasswordOffset, saveFolder, tokenSource.Token);
             } else if (ModeIndex == 8)
             {
-                password = await extractor.ExtractWidthDictionaryAsync(CipherArchiveFile, DictionaryFile, saveFolder, tokenSource.Token);
+                password = await extractor.ExtractWidthDictionaryAsync(CipherArchiveFile, DictionaryFile, PasswordOffset, saveFolder, tokenSource.Token);
             }
             if (!string.IsNullOrWhiteSpace(password))
             {

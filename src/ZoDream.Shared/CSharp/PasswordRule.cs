@@ -25,7 +25,7 @@ namespace ZoDream.Shared.CSharp
         public PasswordRule(string rule, long position)
         {
             Rule = rule;
-            Position = position - 1;
+            Position = Math.Max(position - 1, -1);
         }
 
         private string _rule = string.Empty;

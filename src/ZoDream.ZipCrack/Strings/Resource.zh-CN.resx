@@ -210,6 +210,9 @@
   <data name="pwdNewLabel" xml:space="preserve">
     <value>新密码</value>
   </data>
+  <data name="pwdOffsetLabel" xml:space="preserve">
+    <value>起始位置</value>
+  </data>
   <data name="pwdRuleLabel" xml:space="preserve">
     <value>密码规则</value>
   </data>

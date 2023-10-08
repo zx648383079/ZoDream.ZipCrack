@@ -103,15 +103,22 @@ namespace ZoDream.Shared.CSharp
 
         public async Task<string?> ExtractAsync(string fileName, string rule, string saveFolder, CancellationToken token = default)
         {
-            using var provider = new PasswordRule(rule);
+            return await ExtractAsync(fileName, rule, 0, saveFolder, token);
+        }
+
+        public async Task<string?> ExtractAsync(string fileName, string rule, long offset, string saveFolder, CancellationToken token = default)
+        {
+            using var provider = new PasswordRule(rule, offset);
             return await ExtractAsync(fileName, provider, saveFolder, token);
         }
 
-        public Task<string?> ExtractWidthDictionaryAsync(string fileName, string dictFileName, string saveFolder, CancellationToken token = default)
+        public Task<string?> ExtractWidthDictionaryAsync(string fileName, string dictFileName, 
+            long offset,
+            string saveFolder, CancellationToken token = default)
         {
             return Task.Factory.StartNew(() => {
                 Logger.Info("Begin Try Extract...");
-                using var provider = new PasswordDictionary(dictFileName);
+                using var provider = new PasswordDictionary(dictFileName, offset);
                 while (provider.HasMore)
                 {
                     if (token.IsCancellationRequested)
@@ -134,6 +141,11 @@ namespace ZoDream.Shared.CSharp
                 Logger.Info($"Not Found Password!");
                 return null;
             }, token);
+        }
+
+        public async Task<string?> ExtractWidthDictionaryAsync(string fileName, string dictFileName, string saveFolder, CancellationToken token = default)
+        {
+            return await ExtractWidthDictionaryAsync(fileName, dictFileName, 0, saveFolder, token);
         }
     }
 }

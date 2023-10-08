@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using ZoDream.Shared.Interfaces;
@@ -8,10 +9,14 @@ namespace ZoDream.Shared.CSharp
 {
     public class PasswordDictionary : IPasswordProvider
     {
-        public PasswordDictionary(string fileName): this(new FileStream(fileName, FileMode.Open, FileAccess.Read))
+        public PasswordDictionary(string fileName, long position) : 
+            this(new FileStream(fileName, FileMode.Open, FileAccess.Read), position)
         {
             
         }
+
+        public PasswordDictionary(string fileName): this(fileName, 0)
+        { }
 
         public PasswordDictionary(FileStream stream): this(stream, 0)
         {
@@ -56,7 +61,7 @@ namespace ZoDream.Shared.CSharp
                 }
             }
             BaseStream.Seek(beginPosition, SeekOrigin.Begin);
-            Position = position - 1;
+            Position = Math.Max(position - 1, -1);
         }
         private readonly FileStream BaseStream;
         private readonly Encoding Encoding;

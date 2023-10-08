@@ -202,6 +202,14 @@ namespace ZoDream.ZipCrack.ViewModels
             }
         }
 
+        private int passwordOffset;
+
+        public int PasswordOffset {
+            get => passwordOffset;
+            set => Set(ref passwordOffset, value);
+        }
+
+
 
         private KeyItem? internalKey;
 

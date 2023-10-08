@@ -124,7 +124,7 @@
             <TextBlock Text="{ll:LocalizedLang DecodeLabelText}" Style="{StaticResource LableTb}"/>
             <ctl:FileInput Grid.Column="1" FileName="{Binding DecodeFile}" Filter=""/>
         </Grid>
-        <Grid Grid.Row="3" Height="30" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=7}">
+        <Grid Grid.Row="2" Height="30" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=7}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
@@ -132,7 +132,7 @@
             <TextBlock Text="{ll:LocalizedLang pwdRuleLabel}" Style="{StaticResource LableTb}"/>
             <TextBox Grid.Column="1" MaxLines="1" Text="{Binding PasswordRule}"/>
         </Grid>
-        <Grid Grid.Row="3" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=8}">
+        <Grid Grid.Row="2" Height="30" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter=8}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition/>
@@ -140,7 +140,15 @@
             <TextBlock Text="{ll:LocalizedLang DictLabelText}" Style="{StaticResource LableTb}" ToolTip="{ll:LocalizedLang DictFileTip}"/>
             <ctl:FileInput Grid.Column="1" FileName="{Binding DictionaryFile}" Filter=""/>
         </Grid>
-        
+        <Grid Grid.Row="3" Visibility="{Binding ModeIndex,Converter={StaticResource ToggleCvt},ConverterParameter='7|8'}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{ll:LocalizedLang pwdOffsetLabel}" Style="{StaticResource LableTb}"/>
+            <TextBox Grid.Column="1" MaxLines="1" Text="{Binding PasswordOffset}"/>
+        </Grid>
+
         <ctl:ConsoleContainer x:Name="infoTb" Grid.Row="4"/>
 
         <ProgressBar x:Name="progressBar" Grid.Row="5" Height="10" 
