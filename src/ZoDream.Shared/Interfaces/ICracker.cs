@@ -72,18 +72,18 @@ namespace ZoDream.Shared.Interfaces
         /// </summary>
         /// <param name="keys"></param>
         /// <param name="cipherFile"></param>
-        /// <param name="distFolder"></param>
+        /// <param name="targetFolder"></param>
         /// <returns></returns>
-        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string distFolder);
+        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string targetFolder);
         /// <summary>
         /// 根据key获取压缩文件
         /// </summary>
         /// <param name="keys"></param>
         /// <param name="cipherFile"></param>
         /// <param name="cipherFileName"></param>
-        /// <param name="distFolder"></param>
+        /// <param name="targetFolder"></param>
         /// <returns></returns>
-        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string cipherFileName, string distFolder);
+        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string cipherFileName, string targetFolder);
         /// <summary>
         /// 根据key获取压缩文件
         /// </summary>
@@ -91,26 +91,26 @@ namespace ZoDream.Shared.Interfaces
         /// <param name="cipherFile"></param>
         /// <param name="cipherBegin"></param>
         /// <param name="cipherEnd"></param>
-        /// <param name="distFile"></param>
+        /// <param name="targetFile"></param>
         /// <returns></returns>
-        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, long cipherBegin, long cipherEnd, string distFile);
+        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, long cipherBegin, long cipherEnd, string targetFile);
         /// <summary>
         /// 根据keys把压缩包转成不设密码的压缩包
         /// </summary>
         /// <param name="keys"></param>
         /// <param name="cipherFile"></param>
-        /// <param name="distFile"></param>
+        /// <param name="targetFile"></param>
         /// <returns></returns>
-        public Task<bool> PackAsync(KeyItem keys, string cipherFile, string distFile);
+        public Task<bool> PackAsync(KeyItem keys, string cipherFile, string targetFile);
         /// <summary>
         /// 根据keys把压缩包转成已知密码的压缩包
         /// </summary>
         /// <param name="keys"></param>
         /// <param name="cipherFile"></param>
-        /// <param name="distFile"></param>
+        /// <param name="targetFile"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public Task<bool> PackAsync(KeyItem keys, string cipherFile, string distFile, string password);
+        public Task<bool> PackAsync(KeyItem keys, string cipherFile, string targetFile, string password);
         /// <summary>
         /// 根据keys修复密码
         /// </summary>

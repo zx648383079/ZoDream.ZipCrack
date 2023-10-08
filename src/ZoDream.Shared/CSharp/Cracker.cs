@@ -1,4 +1,4 @@
-﻿using ICSharpCode.SharpZipLib.Zip;
+﻿using SharpCompress.Common;
 using System;
 using System.IO;
 using System.Text;
@@ -195,12 +195,12 @@ namespace ZoDream.Shared.CSharp
             return Task.Factory.StartNew(() => FindKey(cipherFile, cipherBegin, cipherEnd, plainFile, plainBegin, plainEnd), StartNew());
         }
 
-        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string distFolder)
+        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string targetFolder)
         {
-            return Task.Factory.StartNew(() => Unpack(keys, cipherFile, distFolder), StartNew());
+            return Task.Factory.StartNew(() => Unpack(keys, cipherFile, targetFolder), StartNew());
         }
 
-        public bool Unpack(KeyItem keys, string cipherFile, string distFolder)
+        public bool Unpack(KeyItem keys, string cipherFile, string targetFolder)
         {
             var res = true;
             using (var fs = File.OpenRead(cipherFile))
@@ -214,7 +214,7 @@ namespace ZoDream.Shared.CSharp
                         return false;
                     }
                     Logger?.Progress(++i, items.Count);
-                    if (!Unpack(keys, fs, item, distFolder))
+                    if (!Unpack(keys, fs, item, targetFolder))
                     {
                         res = false;
                     }
@@ -223,47 +223,47 @@ namespace ZoDream.Shared.CSharp
             return res;
         }
 
-        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string cipherFileName, string distFolder)
+        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string cipherFileName, string targetFolder)
         {
-            return Task.Factory.StartNew(() => Unpack(keys, cipherFile, cipherFileName, distFolder), StartNew());
+            return Task.Factory.StartNew(() => Unpack(keys, cipherFile, cipherFileName, targetFolder), StartNew());
         }
 
-        public bool Unpack(KeyItem keys, FileStream cipherStream, ZipEntry entry, string distFolder)
+        public bool Unpack(KeyItem keys, FileStream cipherStream, IEntry entry, string targetFolder)
         {
             if (!Zip.GetFileDataPosition(cipherStream, entry, out var begin, out var end))
             {
                 return false;
             }
-            return Unpack(keys, cipherStream, entry, begin, end, distFolder);
+            return Unpack(keys, cipherStream, entry, begin, end, targetFolder);
         }
 
-        public bool Unpack(KeyItem keys, FileStream cipherStream, ZipEntry entry, long begin, long end, string distFolder)
+        public bool Unpack(KeyItem keys, FileStream cipherStream, IEntry entry, long begin, long end, string targetFolder)
         {
-            string directoryName = Path.GetDirectoryName(entry.Name);
-            string fileName = Path.GetFileName(entry.Name);
+            string directoryName = Path.GetDirectoryName(entry.Key);
+            string fileName = Path.GetFileName(entry.Key);
             if (string.IsNullOrWhiteSpace(fileName))
             {
                 return false;
             }
             if (directoryName.Length > 0)
             {
-                Directory.CreateDirectory(Path.Combine(distFolder, directoryName));
+                Directory.CreateDirectory(Path.Combine(targetFolder, directoryName));
             }
-            Logger?.Info($"unpack: {entry.Name}");
-            var distFile = Path.Combine(distFolder, entry.Name);
-            using (var fs = File.Create(distFile))
+            Logger?.Info($"unpack: {entry.Key}");
+            var targetFile = Path.Combine(targetFolder, entry.Key);
+            using (var fs = File.Create(targetFile))
             {
-                var res = Unpack(keys.Clone(), cipherStream, begin, end, fs, entry.CompressionMethod);
+                var res = Unpack(keys.Clone(), cipherStream, begin, end, fs, entry.CompressionType);
                 if (!res)
                 {
                     fs.Close();
-                    File.Delete(distFile);
+                    File.Delete(targetFile);
                 }
                 return res;
             }
         }
 
-        public bool Unpack(KeyItem keys, string cipherFile, string cipherFileName, string distFolder)
+        public bool Unpack(KeyItem keys, string cipherFile, string cipherFileName, string targetFolder)
         {
             using var fs = File.OpenRead(cipherFile);
             if (!Zip.GetFileDataPosition(fs, cipherFileName, out var entry, out var begin, out var end))
@@ -274,17 +274,17 @@ namespace ZoDream.Shared.CSharp
             {
                 return false;
             }
-            return Unpack(keys, fs, entry, begin, end, distFolder);
+            return Unpack(keys, fs, entry, begin, end, targetFolder);
         }
 
-        public bool Unpack(KeyItem keys, FileStream cipherStream, long begin, long end, FileStream distStream, CompressionMethod compression)
+        public bool Unpack(KeyItem keys, FileStream cipherStream, long begin, long end, FileStream targetStream, CompressionType compression)
         {
             switch (compression)
             {
-                case CompressionMethod.Stored:
-                    return UnpackStored(keys, cipherStream, begin, end, distStream);
-                case CompressionMethod.Deflated:
-                    return Unpack(keys, cipherStream, begin, end, distStream);
+                case CompressionType.None:
+                    return UnpackStored(keys, cipherStream, begin, end, targetStream);
+                case CompressionType.Deflate:
+                    return Unpack(keys, cipherStream, begin, end, targetStream);
                 default:
                     Logger?.Error("Unsupported compression method " + compression);
                     break;
@@ -299,14 +299,14 @@ namespace ZoDream.Shared.CSharp
         /// <param name="cipherStream"></param>
         /// <param name="begin"></param>
         /// <param name="end"></param>
-        /// <param name="distStream"></param>
+        /// <param name="targetStream"></param>
         /// <returns></returns>
-        public bool UnpackStored(KeyItem keys, FileStream cipherStream, long begin, long end, FileStream distStream)
+        public bool UnpackStored(KeyItem keys, FileStream cipherStream, long begin, long end, FileStream targetStream)
         {
             var key = new Keys(keys);
             cipherStream.Seek(begin, SeekOrigin.Begin);
             var offset = begin + CrackData.ENCRYPTION_HEADER_SIZE;
-            distStream.Seek(0, SeekOrigin.Begin);
+            targetStream.Seek(0, SeekOrigin.Begin);
             for (var i = begin; i < end; i++)
             {
                 var b = (char)cipherStream.ReadByte();
@@ -316,21 +316,21 @@ namespace ZoDream.Shared.CSharp
                 {
                     continue;
                 }
-                distStream.WriteByte(p);
+                targetStream.WriteByte(p);
             }
             return true;
         }
 
         /// <summary>
-        /// 这是根据deflater编码
+        /// 这是根据 deflater 编码
         /// </summary>
         /// <param name="keys"></param>
         /// <param name="cipherStream"></param>
         /// <param name="begin"></param>
         /// <param name="end"></param>
-        /// <param name="distStream"></param>
+        /// <param name="targetStream"></param>
         /// <returns></returns>
-        public bool Unpack(KeyItem keys, FileStream cipherStream, long begin, long end, FileStream distStream)
+        public bool Unpack(KeyItem keys, FileStream cipherStream, long begin, long end, FileStream targetStream)
         {
             var key = new Keys(keys);
             cipherStream.Seek(begin, SeekOrigin.Begin);
@@ -348,12 +348,12 @@ namespace ZoDream.Shared.CSharp
                 }
                 tempFs.WriteByte(p);
             }
-            distStream.Seek(0, SeekOrigin.Begin);
+            targetStream.Seek(0, SeekOrigin.Begin);
             tempFs.Seek(0, SeekOrigin.Begin);
             var res = true;
             try
             {
-                Zip.DecodeDeflatedFile(tempFs, distStream);
+                Zip.InflateFile(tempFs, targetStream);
             }
             catch (Exception ex)
             {
@@ -369,19 +369,19 @@ namespace ZoDream.Shared.CSharp
         /// 解压一个文件
         /// </summary>
         /// <param name="file"></param>
-        /// <param name="distFile"></param>
+        /// <param name="targetFile"></param>
         /// <returns></returns>
-        public bool Unpack(string file, string distFile)
+        public bool Unpack(string file, string targetFile)
         {
             var res = true;
             try
             {
-                Zip.DecodeDeflatedFile(file, distFile);
+                Zip.InflateFile(file, targetFile);
             }
             catch (Exception ex)
             {
                 res = false;
-                File.Delete(distFile);
+                File.Delete(targetFile);
                 Logger?.Error(ex.Message);
             }
             return res;
@@ -479,30 +479,28 @@ namespace ZoDream.Shared.CSharp
             }, StartNew());
         }
 
-        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, long cipherBegin, long cipherEnd, string distFile)
+        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, long cipherBegin, long cipherEnd, string targetFile)
         {
             return Task.Factory.StartNew(() =>
             {
-                using (var fs = File.Create(distFile))
-                using (var cipherStream = File.OpenRead(cipherFile))
+                using var fs = File.Create(targetFile);
+                using var cipherStream = File.OpenRead(cipherFile);
+                var res = Unpack(keys.Clone(), cipherStream, cipherBegin, cipherEnd, fs, CompressionType.Deflate);
+                if (!res)
                 {
-                    var res = Unpack(keys.Clone(), cipherStream, cipherBegin, cipherEnd, fs, CompressionMethod.Deflated);
-                    if (!res)
-                    {
-                        fs.Close();
-                        File.Delete(distFile);
-                    }
-                    return res;
+                    fs.Close();
+                    File.Delete(targetFile);
                 }
+                return res;
             }, StartNew());
         }
 
-        public async Task<bool> PackAsync(KeyItem keys, string cipherFile, string distFile)
+        public async Task<bool> PackAsync(KeyItem keys, string cipherFile, string targetFile)
         {
-            return await PackAsync(keys, cipherFile, distFile, string.Empty);
+            return await PackAsync(keys, cipherFile, targetFile, string.Empty);
         }
 
-        public Task<bool> PackAsync(KeyItem keys, string cipherFile, string distFile, string password)
+        public Task<bool> PackAsync(KeyItem keys, string cipherFile, string targetFile, string password)
         {
             Logger?.Error("Converter zip need TODO");
             return Task.FromResult(false);

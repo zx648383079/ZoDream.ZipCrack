@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
 using System.Text;
 using System.Windows;
 using ZoDream.Shared.CSharp;
@@ -71,6 +72,7 @@ namespace ZoDream.ZipCrack.ViewModels
                 OnPropertyChanged(nameof(EnableDecompress));
                 OnPropertyChanged(nameof(EnableDecompressFiles));
                 OnPropertyChanged(nameof(EnableConverter));
+                OnPropertyChanged(nameof(EnableCrack));
             }
         }
 
@@ -124,6 +126,15 @@ namespace ZoDream.ZipCrack.ViewModels
             set {
                 Set(ref plainFile, value);
                 OnPropertyChanged(nameof(EnableGet));
+                var name = Path.GetFileName(value);
+                foreach (var item in CipherItems)
+                {
+                    if (item.Name == name || Path.GetFileName(item.Name) == name)
+                    {
+                        CipherSelectedName = item.Name;
+                        return;
+                    }
+                }
             }
         }
 
@@ -161,6 +172,7 @@ namespace ZoDream.ZipCrack.ViewModels
             set {
                 Set(ref passwordRule, value);
                 OnPropertyChanged(nameof(EnableRecover));
+                OnPropertyChanged(nameof(EnableCrack));
             }
         }
 
@@ -184,7 +196,10 @@ namespace ZoDream.ZipCrack.ViewModels
 
         public string DictionaryFile {
             get => dictionaryFile;
-            set => Set(ref dictionaryFile, value);
+            set {
+                Set(ref dictionaryFile, value);
+                OnPropertyChanged(nameof(EnableCrack));
+            }
         }
 
 

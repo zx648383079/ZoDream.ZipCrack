@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using ZoDream.Shared.CSharp;
 using ZoDream.Shared.Interfaces;
@@ -41,6 +42,7 @@ namespace ZoDream.ZipCrack.ViewModels
 
         public ILogger Logger { get; private set; } = new EventLogger();
         private ICracker? crackerTask;
+        private CancellationTokenSource? tokenSource;
 
         private ICracker GetCracker()
         {
@@ -173,6 +175,7 @@ namespace ZoDream.ZipCrack.ViewModels
         public void Stop()
         {
             crackerTask?.Stop();
+            tokenSource?.Cancel();
             IsPaused = true;
         }
     }

@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Input;
 using ZoDream.Shared.CSharp;
 using ZoDream.ZipCrack.Utils;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ZoDream.ZipCrack.ViewModels
 {
@@ -78,7 +77,7 @@ namespace ZoDream.ZipCrack.ViewModels
             var outputFile = picker.FileName;
             try
             {
-                Zip.DecodeDeflatedFile(DecodeFile, outputFile);
+                Zip.InflateFile(DecodeFile, outputFile);
                 MessageBox.Show(LocalizedLangExtension.GetString("converterSuccess"));
             }
             catch (Exception ex)
@@ -150,18 +149,39 @@ namespace ZoDream.ZipCrack.ViewModels
             Unpack();
         }
 
-        public bool EnableCrack => (ModeIndex == 7 && string.IsNullOrWhiteSpace(PasswordRule)) ||
-            (ModeIndex == 8 && string.IsNullOrWhiteSpace(DictionaryFile));
+        public bool EnableCrack => !string.IsNullOrWhiteSpace(CipherArchiveFile) && ((ModeIndex == 7 && !string.IsNullOrWhiteSpace(PasswordRule)) ||
+            (ModeIndex == 8 && !string.IsNullOrWhiteSpace(DictionaryFile)));
 
-        public void TapCrack(object? _)
+        public async void TapCrack(object? _)
         {
+            Stop();
+            //var folder = new System.Windows.Forms.FolderBrowserDialog
+            //{
+            //    SelectedPath = Path.GetDirectoryName(CipherArchiveFile)!,
+            //    ShowNewFolderButton = true,
+            //    Description = LocalizedLangExtension.GetString("unzipBtnContent"),
+            //};
+            //if (folder.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+            //{
+            //    return;
+            //}
+            var saveFolder = string.Empty;//folder.SelectedPath;
+            tokenSource = new System.Threading.CancellationTokenSource();
+            IsPaused = false;
+            var extractor = new ArchiveExtractor(Logger);
+            var password = string.Empty;
             if (ModeIndex == 7)
             {
-
+                password = await extractor.ExtractAsync(CipherArchiveFile, PasswordRule, saveFolder, tokenSource.Token);
             } else if (ModeIndex == 8)
             {
-
+                password = await extractor.ExtractWidthDictionaryAsync(CipherArchiveFile, DictionaryFile, saveFolder, tokenSource.Token);
             }
+            if (!string.IsNullOrWhiteSpace(password))
+            {
+                MessageBox.Show($"Found password: {password}");
+            }
+            IsPaused = true;
         }
     }
 }

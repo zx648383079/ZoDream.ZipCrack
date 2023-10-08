@@ -86,19 +86,19 @@ namespace ZoDream.Shared.CPlus
             }, StartNew());
         }
 
-        public Task<bool> PackAsync(KeyItem keys, string cipherFile, string distFile)
+        public Task<bool> PackAsync(KeyItem keys, string cipherFile, string targetFile)
         {
             return Task.Factory.StartNew(() =>
             {
-                return CrackerNativeMethods.Pack(ParseKey(keys), cipherFile, distFile, Callback);
+                return CrackerNativeMethods.Pack(ParseKey(keys), cipherFile, targetFile, Callback);
             }, StartNew());
         }
 
-        public Task<bool> PackAsync(KeyItem keys, string cipherFile, string distFile, string password)
+        public Task<bool> PackAsync(KeyItem keys, string cipherFile, string targetFile, string password)
         {
             return Task.Factory.StartNew(() =>
             {
-                return CrackerNativeMethods.Pack(ParseKey(keys), cipherFile, distFile, password, Callback);
+                return CrackerNativeMethods.Pack(ParseKey(keys), cipherFile, targetFile, password, Callback);
             }, StartNew());
         }
 
@@ -118,28 +118,28 @@ namespace ZoDream.Shared.CPlus
             stopToken.Cancel();
         }
 
-        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string distFolder)
+        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string targetFolder)
         {
             return Task.Factory.StartNew(() =>
             {
-                return CrackerNativeMethods.Unpack(ParseKey(keys), cipherFile, distFolder, Callback);
+                return CrackerNativeMethods.Unpack(ParseKey(keys), cipherFile, targetFolder, Callback);
             }, StartNew());
         }
 
-        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string cipherFileName, string distFolder)
+        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, string cipherFileName, string targetFolder)
         {
             return Task.Factory.StartNew(() =>
             {
-                var distFile = Path.Combine(distFolder, cipherFileName);
-                return CrackerNativeMethods.Unpack(ParseKey(keys), cipherFile, cipherFileName, distFile, Callback);
+                var targetFile = Path.Combine(targetFolder, cipherFileName);
+                return CrackerNativeMethods.Unpack(ParseKey(keys), cipherFile, cipherFileName, targetFile, Callback);
             }, StartNew());
         }
 
-        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, long cipherBegin, long cipherEnd, string distFile)
+        public Task<bool> UnpackAsync(KeyItem keys, string cipherFile, long cipherBegin, long cipherEnd, string targetFile)
         {
             return Task.Factory.StartNew(() =>
             {
-                return CrackerNativeMethods.Unpack(ParseKey(keys), cipherFile, cipherBegin, cipherEnd, distFile, Callback);
+                return CrackerNativeMethods.Unpack(ParseKey(keys), cipherFile, cipherBegin, cipherEnd, targetFile, Callback);
             }, StartNew());
         }
 

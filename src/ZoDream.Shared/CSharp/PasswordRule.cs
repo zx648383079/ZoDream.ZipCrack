@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using ZoDream.Shared.Interfaces;
 
 namespace ZoDream.Shared.CSharp
 {
@@ -15,11 +16,16 @@ namespace ZoDream.Shared.CSharp
     /// ?h 十六进制字符 0123456789abcdef
     /// ?H 大写的十六进制字符 0123456789ABCDEF
     /// </summary>
-    public class PasswordRule: IEnumerator<byte[]>, IEnumerable<byte[]>
+    public class PasswordRule: IPasswordProvider, IEnumerator<byte[]>, IEnumerable<byte[]>
     {
-        public PasswordRule(string rule)
+        public PasswordRule(string rule): this(rule, 0)
+        {
+        }
+
+        public PasswordRule(string rule, long position)
         {
             Rule = rule;
+            Position = position - 1;
         }
 
         private string _rule = string.Empty;
@@ -33,9 +39,9 @@ namespace ZoDream.Shared.CSharp
             }
         }
 
-        private List<Tuple<byte, bool>> RuleBockItems = new();
+        private readonly List<Tuple<byte, bool>> RuleBockItems = new();
 
-        private long Position =  -1;
+        public long Position { get; private set; } =  -1;
 
         /// <summary>
         /// 总数量
@@ -88,8 +94,9 @@ namespace ZoDream.Shared.CSharp
         private byte[] Generate(long index)
         {
             var res = new List<byte>();
-            foreach (var item in RuleBockItems)
+            for (int i = RuleBockItems.Count - 1; i >= 0; i--)
             {
+                var item = RuleBockItems[i];
                 if (!item.Item2)
                 {
                     res.Add(item.Item1);
@@ -102,7 +109,9 @@ namespace ZoDream.Shared.CSharp
                     continue;
                 }
                 res.Add(GetByte(tag, (int)(index % count)));
+                index /= count;
             }
+            res.Reverse();
             return res.ToArray();
         }
 
@@ -151,15 +160,22 @@ namespace ZoDream.Shared.CSharp
         {
             RuleBockItems.Clear();
             Length = 0;
-            Count = 0;
+            Count = 1;
+            var i = -1;
             foreach (var item in rule.Split('?'))
             {
+                i++;
                 if (string.IsNullOrEmpty(item))
                 {
                     if (Length > 0)
                     {
                         AddText("?");
                     }
+                    continue;
+                }
+                if (i == 0)
+                {
+                    AddText(item);
                     continue;
                 }
                 var first = item[0];
@@ -255,9 +271,20 @@ namespace ZoDream.Shared.CSharp
                 return data;
             }
         }
+        public bool HasMore => Position < Count - 1;
+
         public void Dispose()
         {
-            
+            RuleBockItems.Clear();
+        }
+
+        public string Next()
+        {
+            if (MoveNext())
+            {
+                return Encoding.Default.GetString(Current);
+            }
+            return string.Empty;
         }
     }
 }

@@ -8,11 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="SharpCompress" Version="0.34.1" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\SharpZipLib\src\ICSharpCode.SharpZipLib\ICSharpCode.SharpZipLib.csproj" />
   </ItemGroup>
 
 </Project>

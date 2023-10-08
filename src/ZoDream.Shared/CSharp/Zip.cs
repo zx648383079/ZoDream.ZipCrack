@@ -1,10 +1,14 @@
-﻿using ICSharpCode.SharpZipLib.Zip;
-using ICSharpCode.SharpZipLib.Zip.Compression;
-using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
+﻿using SharpCompress;
+using SharpCompress.Archives;
+using SharpCompress.Common;
+using SharpCompress.Common.Zip;
+using SharpCompress.Compressors;
+using SharpCompress.Compressors.Deflate;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using ZoDream.Shared.Models;
 
@@ -12,22 +16,12 @@ namespace ZoDream.Shared.CSharp
 {
     public static class Zip
     {
-
-        private static StringCodec Codec = StringCodec.Default;
         
         public static string CodePage
         {
             set
             {
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                try
-                {
-                    Codec = StringCodec.FromEncoding(Encoding.GetEncoding(value));
-                }
-                catch (Exception)
-                {
-                    Codec = StringCodec.Default;
-                }
             }
         }
 
@@ -36,38 +30,71 @@ namespace ZoDream.Shared.CSharp
             return GetFileDataPosition(stream, name, out var _, out begin, out end);
         }
 
-        public static bool GetFileDataPosition(FileStream stream, string name, out ZipEntry? entry, out long begin, out long end)
+        public static bool GetFileDataPosition(FileStream stream, string name, out IEntry? entry, out long begin, out long end)
         {
             begin = 0;
             end = 0;
-            // RegisterEncoding();
-            using var zipFile = new ZipFile(stream)
+            entry = null;
+            var reader = ArchiveFactory.Open(stream);
+            foreach (var item in reader.Entries)
             {
-                StringCodec = Codec
-            };
-            zipFile.IsStreamOwner = false;
-            var item = zipFile.GetEntry(name);
-            if (item == null)
+                if (item.IsDirectory || item.Key != name)
+                {
+                    continue;
+                }
+                try
+                {
+                    item.OpenEntryStream();
+                }
+                catch (Exception)
+                {
+                }
+                begin = stream.Position;
+                end = begin + item.CompressedSize;
+                entry = item;
+                break;
+            }
+            if (entry is null)
             {
-                entry = null;
                 return false;
             }
-            begin = zipFile.LocateEntry(item);
-            end = begin + item.CompressedSize;
-            entry = item;
             return true;
         }
 
-        public static bool GetFileDataPosition(FileStream stream, ZipEntry item, out long begin, out long end)
+        /// <summary>
+        /// 获取文件在压缩流中的起始位置
+        /// </summary>
+        /// <param name="entry"></param>
+        /// <returns></returns>
+        private static long GetEntryPosition(IEntry entry)
         {
-            using var zipFile = new ZipFile(stream)
+            var type = typeof(ZipEntry);
+            var flags = BindingFlags.NonPublic | BindingFlags.Instance;
+            // var mInfo = type.GetMethod("Display", flags);
+            var field = type.GetField("_filePart", flags);
+            var part = field.GetValue(entry);
+            var partType = Type.GetType("SharpCompress.Common.Zip.SeekableZipFilePart,SharpCompress");
+            object header;
+            if (partType.IsAssignableFrom(part.GetType()))
             {
-                StringCodec = Codec
-            };
-            zipFile.IsStreamOwner = false;
-            item.IsCrypted = false;
-            begin = zipFile.LocateEntry(item);
-            end = begin + item.CompressedSize;
+                var headerField = partType.GetMethod("get_Header", flags);
+                header = headerField.Invoke(part, new object[0]);
+            } else
+            {
+                header = part;
+            }
+            var headerType = Type.GetType("SharpCompress.Common.Zip.Headers.ZipFileEntry,SharpCompress");
+            var positionField = headerType.GetMethod("get_DataStartPosition", flags);
+            var pos = positionField.Invoke(header, new object[0]);
+            return pos is null ? 0L : (long)pos;
+            // return (long)mInfo.Invoke(entry, new object[] { "Hello" });
+        }
+
+        public static bool GetFileDataPosition(FileStream stream, IEntry item, out long begin, out long end)
+        {
+            //begin = GetEntryPosition(item);
+            //end = begin + item.CompressedSize;
+            GetFileDataPosition(stream, item.Key, out begin, out end);
             return true;
         }
 
@@ -83,26 +110,20 @@ namespace ZoDream.Shared.CSharp
 
         public static IList<FileItem> GetFiles(FileStream fs)
         {
-            return GetEntries(fs).Select(item => new FileItem(item.Name, item.Crc.ToString("X"), item.Size)).ToList();
+            return GetEntries(fs).Select(item => new FileItem(item.Key, item.Crc.ToString("X"), item.Size)).ToList();
         }
 
-        public static IList<ZipEntry> GetEntries(FileStream fs)
+        public static IList<IEntry> GetEntries(FileStream fs)
         {
-            var items = new List<ZipEntry>();
-            using (var stream = new ZipFile(fs)
+            var items = new List<IEntry>();
+            var reader = ArchiveFactory.Open(fs);
+            foreach (var entry in reader.Entries)
             {
-                StringCodec = Codec
-            })
-            {
-                stream.IsStreamOwner = false;
-                foreach (ZipEntry item in stream)
+                if (entry.IsDirectory)
                 {
-                    if (!item.IsFile)
-                    {
-                        continue;
-                    }
-                    items.Add(item);
+                    continue;
                 }
+                items.Add(entry);
             }
             return items;
         }
@@ -123,49 +144,41 @@ namespace ZoDream.Shared.CSharp
             }
             return "utf-8";
         }
-
-        public static void DecodeDeflatedFile(Stream inputStream, Stream outputStream)
+        /// <summary>
+        /// 解密
+        /// </summary>
+        /// <param name="inputFile"></param>
+        /// <param name="outputFile"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public static void InflateFile(string inputFile, string outputFile)
         {
-            var inflator = new InflaterInputStream(inputStream, new Inflater(true));
-            int size;
-            var data = new byte[4096];
-            while (true)
+            if (inputFile == outputFile)
             {
-                size = inflator.Read(data, 0, data.Length);
-                if (size > 0)
-                {
-                    outputStream.Write(data, 0, size);
-                }
-                else
-                {
-                    break;
-                }
+                throw new ArgumentException("Input file cannot be equal to output file");
             }
-            inflator.Close();
+            using var inputFs = File.OpenRead(inputFile);
+            using var outputFs = File.OpenWrite(outputFile);
+            InflateFile(inputFs, outputFs);
         }
         /// <summary>
-        /// 加密
+        /// 解密
+        /// </summary>
+        /// <param name="inputStream"></param>
+        /// <param name="outputStream"></param>
+        public static void InflateFile(Stream inputStream, Stream outputStream)
+        {
+            var inflator = new DeflateStream(inputStream, CompressionMode.Decompress);
+            inflator.TransferTo(outputStream);
+        }
+        /// <summary>
+        /// 加密, 存在问题，跟 7z 压缩有区别
         /// </summary>
         /// <param name="inputStream"></param>
         /// <param name="outputStream"></param>
         public static void DeflateFile(Stream inputStream, Stream outputStream)
         {
-            var deflator = new DeflaterOutputStream(outputStream, new Deflater(Deflater.DEFAULT_COMPRESSION, false));
-            int size;
-            var data = new byte[4096];
-            while (true)
-            {
-                size = inputStream.Read(data, 0, data.Length);
-                if (size > 0)
-                {
-                    deflator.Write(data, 0, size);
-                }
-                else
-                {
-                    break;
-                }
-            }
-            // deflator.Close();
+            var deflatorStream = new DeflateStream(outputStream, CompressionMode.Compress, CompressionLevel.Level0);
+            inputStream.TransferTo(deflatorStream);
         }
 
         public static void DeflateFile(string file, Stream outputStream)
@@ -180,9 +193,8 @@ namespace ZoDream.Shared.CSharp
         /// <param name="outputStream"></param>
         public static void DeflateByte(byte[] input, Stream outputStream)
         {
-            var deflator = new DeflaterOutputStream(outputStream, new Deflater(Deflater.DEFAULT_COMPRESSION, false));
-            deflator.Write(input, 0, input.Length);
-            deflator.Close();
+            var deflatorStream = new DeflateStream(outputStream, CompressionMode.Compress, CompressionLevel.Default);
+            deflatorStream.Write(input, 0, input.Length);
         }
 
         public static byte[] DeflateText(string val, Encoding encoding)
@@ -190,17 +202,6 @@ namespace ZoDream.Shared.CSharp
             using var ms = new MemoryStream();
             DeflateByte(encoding.GetBytes(val), ms);
             return ms.GetBuffer();
-        }
-
-        public static void DecodeDeflatedFile(string inputFile, string outputFile)
-        {
-            if (inputFile == outputFile)
-            {
-                throw new ArgumentException("Input file cannot be equal to output file");
-            }
-            using var inputFs = File.OpenRead(inputFile);
-            using var outputFs = File.OpenWrite(outputFile);
-            DecodeDeflatedFile(inputFs, outputFs);
         }
     }
 }

@@ -17,7 +17,6 @@ This program is modified with reference to [kimci86/bkcrack](https://github.com/
 |:--:|:--:|:--:|
 |[Dll/CrackerExe](https://github.com/kimci86/bkcrack)|This is the c++ console version, which also uses the dynamic link library dll | use vs2022 to compile and transform|
 |[Dll/Cracker](https://github.com/kimci86/bkcrack)|This is a C++ version of the dynamic link library, which is easy to use by c#. There is a big gap between the code execution efficiency of c++ and c#, so there is this project | many export methods have been added.|
-|[ICSharpCode.SharpZipLib](https://github.com/icsharpcode/SharpZipLib)|This is the zip decompression library|Because the original version cannot obtain the starting position of the data of the compressed file, the access rights of `ZipFile.LocateEntry` have been modified, ~~I have found several compression libraries and do not provide the starting position of the file~~|
 |src|This is the interface of NET core WPF||
 |ZoDream.Shared|The algorithm is rewritten using c#, two versions, including the call of c++ dll, and the pure c# version||
 |ZoDream.Tests|test code|

@@ -15,7 +15,6 @@
 |:--:|:--:|:--:|
 |[Dll/CrackerExe](https://github.com/kimci86/bkcrack)|这是 c++ 控制台版，也使用动态链接库dll|使用vs2022进行编译改造|
 |[Dll/Cracker](https://github.com/kimci86/bkcrack)|这是 c++ 版动态链接库，方便被c# 使用，c++ 与 c# 代码执行效率有很大差距，所以才有这个项目|增加了导出方法|
-|[ICSharpCode.SharpZipLib](https://github.com/icsharpcode/SharpZipLib)|这是zip的解压库|因为原版的无法获取压缩文件的数据的开始位置，所以才修改了`ZipFile.LocateEntry` 的访问权限，~~找了几个压缩库都不对外提供文件的开始位置~~|
 |src|这就是NET core WPF的界面||
 |ZoDream.Shared|使用c# 重写了算法，两个版本，包含 c++ dll 的调用，及纯c#版||
 |ZoDream.Tests|测试代码|
