@@ -42,6 +42,13 @@ namespace ZoDream.Tests
         }
 
         [TestMethod]
+        public void TestDeflate()
+        {
+            // Zip.DeflateFile("D:\\Desktop\\sqllifang.sql", "D:\\Desktop\\test.zip");
+            Assert.AreEqual(1, 1);
+        }
+
+        [TestMethod]
         public void TestPassword()
         {
             var rule = new PasswordRule("?l?d");

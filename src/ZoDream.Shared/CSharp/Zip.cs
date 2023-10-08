@@ -4,6 +4,8 @@ using SharpCompress.Common;
 using SharpCompress.Common.Zip;
 using SharpCompress.Compressors;
 using SharpCompress.Compressors.Deflate;
+using SharpCompress.Writers;
+using SharpCompress.Writers.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -202,6 +204,13 @@ namespace ZoDream.Shared.CSharp
             using var ms = new MemoryStream();
             DeflateByte(encoding.GetBytes(val), ms);
             return ms.GetBuffer();
+        }
+
+        public static void DeflateFile(string fileName, string output)
+        {
+            using var fs = File.Create(output);
+            using var writer = WriterFactory.Open(fs, ArchiveType.Zip, new WriterOptions(CompressionType.Deflate));
+            writer.Write(Path.GetFileName(fileName), fileName);
         }
     }
 }
