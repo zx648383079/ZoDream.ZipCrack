@@ -53,14 +53,18 @@ namespace ZoDream.Shared.CSharp
                 using var extractor = SharpCompress.Readers.ReaderFactory.Open(fs, new SharpCompress.Readers.ReaderOptions()
                 {
                     Password = password,
-                });//new SevenZipExtractor(fileName, password);
-                if (!extractor.MoveToNextEntry()) {
-                    return false;
-                }
+                });
+while (extractor.MoveToNextEntry())
+                {
+                    if (extractor.Entry.IsDirectory)
+                    {
+                        continue;
+                    }
                 using var ms = new MemoryStream();
                 extractor.WriteEntryTo(ms);
                 // extractor.ExtractArchive(saveFolder);
                 return true;
+               }
             }
             catch (Exception ex)
             {
