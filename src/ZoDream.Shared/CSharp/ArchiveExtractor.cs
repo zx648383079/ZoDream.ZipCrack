@@ -54,17 +54,19 @@ namespace ZoDream.Shared.CSharp
                 {
                     Password = password,
                 });
-while (extractor.MoveToNextEntry())
+                while (extractor.MoveToNextEntry())
                 {
                     if (extractor.Entry.IsDirectory)
                     {
                         continue;
                     }
-                using var ms = new MemoryStream();
-                extractor.WriteEntryTo(ms);
-                // extractor.ExtractArchive(saveFolder);
-                return true;
-               }
+                    using var ms = new MemoryStream();
+                    extractor.WriteEntryTo(ms);
+                    // extractor.ExtractArchive(saveFolder);
+                    return true;
+                }
+                Logger.Error($"Extract Error: Not Found File");
+                return false;
             }
             catch (Exception ex)
             {
