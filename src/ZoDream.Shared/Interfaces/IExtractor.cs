@@ -1,17 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZoDream.Shared.Interfaces
 {
     public interface IExtractor
     {
-        public bool Extract(string fileName, string saveFolder);
-        public bool Extract(string fileName, string password, string saveFolder);
+        public Task<bool> ExtractAsync(string fileName, 
+            string saveFolder,
+            CancellationToken token = default);
+        public Task<bool> ExtractAsync(string fileName, string password, 
+            string saveFolder, 
+            CancellationToken token = default);
+        /// <summary>
+        /// 查看密码对不对
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public bool TryExtract(string fileName, string password);
 
-        public Task<string?> ExtractAsync(string fileName, IPasswordProvider provider, 
+        public Task<string?> TryExtractAsync(string fileName, 
+            IPasswordProvider provider, 
             string saveFolder, CancellationToken token = default);
     }
 }

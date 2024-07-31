@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SharpCompress.Common;
+using SharpCompress.Readers;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,23 +19,15 @@ namespace ZoDream.Shared.CSharp
 
         public ILogger Logger { get; private set; }
 
-        public bool Extract(string fileName, string saveFolder)
+        public bool Extract(string fileName, 
+            string saveFolder,
+            CancellationToken token = default)
         {
             try
             {
                 using var fs = File.OpenRead(fileName);
-                using var extractor = SharpCompress.Readers.ReaderFactory.Open(fs);
-                while (extractor.MoveToNextEntry())
-                {
-                    var fullPath = Path.Combine(saveFolder, extractor.Entry.Key);
-                    if (extractor.Entry.IsDirectory)
-                    {
-                        Directory.CreateDirectory(fullPath);
-                        continue;
-                    }
-                    using var fileFs = File.Create(fullPath);
-                    extractor.WriteEntryTo(fileFs);
-                }
+                using var extractor = ReaderFactory.Open(fs);
+                Extract(extractor, saveFolder, token);
                 return true;
             }
             catch (Exception ex)
@@ -43,18 +37,63 @@ namespace ZoDream.Shared.CSharp
             }
         }
 
-        public bool Extract(string fileName, string password, string saveFolder)
+        private void Extract(IReader extractor, 
+            string saveFolder,
+            CancellationToken token = default)
+        {
+            while (extractor.MoveToNextEntry())
+            {
+                if (token.IsCancellationRequested)
+                {
+                    return;
+                }
+                var fullPath = Path.Combine(saveFolder, extractor.Entry.Key);
+                if (extractor.Entry.IsDirectory)
+                {
+                    Directory.CreateDirectory(fullPath);
+                    continue;
+                }
+                using var fileFs = File.Create(fullPath);
+                extractor.WriteEntryTo(fileFs);
+            }
+            Logger.Info($"Extract successfully!");
+        }
+
+        public bool Extract(string fileName, string password, 
+            string saveFolder,
+            CancellationToken token = default)
+        {
+            try
+            {
+                using var fs = File.OpenRead(fileName);
+                using var extractor = ReaderFactory.Open(fs, new ReaderOptions()
+                {
+                    Password = password,
+                });
+                Extract(extractor, saveFolder, token);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Extract Error: {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool TryExtract(string fileName, string password)
         {
             // var tempFile = $"__{DateTime.Now.Millisecond}.zip";
             // var tempFs = File.Open(tempFile, FileMode.Create);
             try
             {
                 using var fs = File.OpenRead(fileName);
-                using var extractor = SharpCompress.Readers.ReaderFactory.Open(fs, new SharpCompress.Readers.ReaderOptions()
+                using var extractor = ReaderFactory.Open(fs, new ReaderOptions()
                 {
                     Password = password,
                 });
-                while (extractor.MoveToNextEntry())
+                var i = 0;
+                // 当前判断功能有问题
+                while (extractor.MoveToNextEntry() && i < 10)
                 {
                     if (extractor.Entry.IsDirectory)
                     {
@@ -62,24 +101,41 @@ namespace ZoDream.Shared.CSharp
                     }
                     using var ms = new MemoryStream();
                     extractor.WriteEntryTo(ms);
-                    // extractor.ExtractArchive(saveFolder);
-                    return true;
+                    i++;
                 }
                 Logger.Error($"Extract Error: Not Found File");
-                return false;
+                return i > 0;
             }
             catch (Exception ex)
             {
                 // Logger.Error($"Extract Error: {ex.Message}");
                 return false;
-            } finally
+            }
+            finally
             {
                 //tempFs.Close();
                 //File.Delete(tempFile);
             }
         }
 
-        public Task<string?> ExtractAsync(string fileName, IPasswordProvider provider, string saveFolder, CancellationToken token = default)
+        public Task<bool> ExtractAsync(string fileName, 
+            string saveFolder,
+            CancellationToken token = default)
+        {
+            return Task.Factory.StartNew(() => {
+                return Extract(fileName, saveFolder, token);
+            }, token);
+        }
+        public Task<bool> ExtractAsync(string fileName, 
+            string password, string saveFolder, CancellationToken token = default)
+        {
+            return Task.Factory.StartNew(() => {
+                return Extract(fileName, password, saveFolder, token);
+            }, token);
+        }
+
+        public Task<string?> TryExtractAsync(string fileName, IPasswordProvider provider, string saveFolder, 
+            CancellationToken token = default)
         {
             return Task.Factory.StartNew(() => {
                 Logger.Info("Begin Try Extract...");
@@ -96,7 +152,7 @@ namespace ZoDream.Shared.CSharp
                         continue;
                     }
                     Logger.Progress(provider.Position, provider.Count);
-                    if (Extract(fileName, password, saveFolder))
+                    if (TryExtract(fileName, password))
                     {
                         Logger.Info($"Found Password: {password}");
                         return password;
@@ -107,18 +163,19 @@ namespace ZoDream.Shared.CSharp
             }, token);
         }
 
-        public async Task<string?> ExtractAsync(string fileName, string rule, string saveFolder, CancellationToken token = default)
+        public async Task<string?> TryExtractAsync(string fileName, 
+            string rule, string saveFolder, CancellationToken token = default)
         {
-            return await ExtractAsync(fileName, rule, 0, saveFolder, token);
+            return await TryExtractAsync(fileName, rule, 0, saveFolder, token);
         }
 
-        public async Task<string?> ExtractAsync(string fileName, string rule, long offset, string saveFolder, CancellationToken token = default)
+        public async Task<string?> TryExtractAsync(string fileName, string rule, long offset, string saveFolder, CancellationToken token = default)
         {
             using var provider = new PasswordRule(rule, offset);
-            return await ExtractAsync(fileName, provider, saveFolder, token);
+            return await TryExtractAsync(fileName, provider, saveFolder, token);
         }
 
-        public Task<string?> ExtractWidthDictionaryAsync(string fileName, string dictFileName, 
+        public Task<string?> TryExtractWidthDictionaryAsync(string fileName, string dictFileName, 
             long offset,
             string saveFolder, CancellationToken token = default)
         {
@@ -138,7 +195,7 @@ namespace ZoDream.Shared.CSharp
                         continue;
                     }
                     Logger.Progress(provider.Position, provider.Count);
-                    if (Extract(fileName, password, saveFolder))
+                    if (TryExtract(fileName, password))
                     {
                         Logger.Info($"Found Password: {password}");
                         return password;
@@ -149,9 +206,9 @@ namespace ZoDream.Shared.CSharp
             }, token);
         }
 
-        public async Task<string?> ExtractWidthDictionaryAsync(string fileName, string dictFileName, string saveFolder, CancellationToken token = default)
+        public async Task<string?> TryExtractWidthDictionaryAsync(string fileName, string dictFileName, string saveFolder, CancellationToken token = default)
         {
-            return await ExtractWidthDictionaryAsync(fileName, dictFileName, 0, saveFolder, token);
+            return await TryExtractWidthDictionaryAsync(fileName, dictFileName, 0, saveFolder, token);
         }
     }
 }

@@ -172,14 +172,31 @@ namespace ZoDream.ZipCrack.ViewModels
             var password = string.Empty;
             if (ModeIndex == 7)
             {
-                password = await extractor.ExtractAsync(CipherArchiveFile, PasswordRule, PasswordOffset, saveFolder, tokenSource.Token);
+                password = await extractor.TryExtractAsync(CipherArchiveFile, PasswordRule, PasswordOffset, saveFolder, tokenSource.Token);
             } else if (ModeIndex == 8)
             {
-                password = await extractor.ExtractWidthDictionaryAsync(CipherArchiveFile, DictionaryFile, PasswordOffset, saveFolder, tokenSource.Token);
+                password = await extractor.TryExtractWidthDictionaryAsync(CipherArchiveFile, DictionaryFile, PasswordOffset, saveFolder, tokenSource.Token);
             }
-            if (!string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(password))
             {
-                MessageBox.Show($"Found password: {password}");
+                IsPaused = true;
+                return;
+            }
+            var res = MessageBox.Show($"Found password: {password}\n Does you need to unpack.", 
+                "Found Successfully", MessageBoxButton.YesNo);
+            if (res != MessageBoxResult.Yes) 
+            {
+                IsPaused = true;
+                return;
+            }
+            var folder = new System.Windows.Forms.FolderBrowserDialog
+            {
+                SelectedPath = Path.GetDirectoryName(CipherArchiveFile)!,
+                ShowNewFolderButton = true,
+            };
+            if (folder.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                await extractor.ExtractAsync(CipherArchiveFile, password, folder.SelectedPath, tokenSource.Token);
             }
             IsPaused = true;
         }
